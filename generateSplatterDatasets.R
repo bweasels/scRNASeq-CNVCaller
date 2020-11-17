@@ -1,6 +1,6 @@
 ## Generate our test datasets with Splatter
 #Ben's Local Directory
-setwd('/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq_CNV/')
+setwd('/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/')
 outDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/data/'
 dataDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/Liver Cancer/Pt13.a/'
 plottingDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/plots/'
@@ -18,7 +18,7 @@ set.seed(10000)
 #Seurat's function to load 10X scRNA-Seq data
 #Removes genes that are expressed in 3 or fewer cells, and cells that express fewer than 200 unique genes
 #data from https://www.nature.com/articles/s41467-019-14050-z?proof=t
-data <- Read10X(data.dir = '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/Liver Cancer/Pt13.a/')
+data <- Read10X(data.dir = '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/Liver Cancer/Pt14.d/')
 data <- CreateSeuratObject(counts = data,
                            project = 'HCC',
                            min.cells = 3,
@@ -81,10 +81,31 @@ data <- NormalizeData(data,
 
 # Get essential stats for splatter simulation
 # 11K Cells took ~1.5 hours on my laptop
-if(!file.exists('InitialParams_2020-11-11.RDS')){
+if(!file.exists('InitialParams_2020-11-15.RDS')){
   params <- splatEstimate(as.matrix(data@assays$RNA@counts))
   saveRDS(params, paste0('InitialParams_', date, '.RDS'))
 }else{
-  params <- readRDS('InitialParams_2020-11-11.RDS')
+  params <- readRDS('InitialParams_2020-11-15.RDS')
 }
 sim <- splatSimulate(params)
+
+# plot out scrnaseq data and get clusters
+data <- FindVariableFeatures(data,
+                             selection.method = 'vst',
+                             nfeatures = 2000)
+genes <- rownames(data)
+data <- ScaleData(data, features = genes)
+data <- RunPCA(data,
+               features = VariableFeatures(data))
+
+# based on the pca, most variablility is within top 20 pcs
+data <- FindNeighbors(data, dims = 1:20)
+
+#Tried from 2 - 0.1 in intervals of 0.1, and found that 0.1 doesn't break the large clusters unhelpfully in half
+data <- FindClusters(data, resolution = 0.1)
+
+# run UMAP to cluster the data & find idents
+data <- RunUMAP(data, dims = 1:20)
+DimPlot(data, reduction = 'umap')
+
+markers <- FindAllMarkers(data)
