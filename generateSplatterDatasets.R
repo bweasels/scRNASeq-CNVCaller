@@ -1,7 +1,7 @@
 ## Generate our test datasets with Splatter
 
 # Use source for homebrew scripts
-source('SetDirectory.R')
+source('Utils.R')
 
 # @Charlotte Please enter your own ifelse statement in this function
 dirs <- setDirectory()

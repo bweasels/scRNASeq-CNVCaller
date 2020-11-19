@@ -1,7 +1,33 @@
 ##To filter out all other weird cell types from the HCC dataset
+setDirectory <- function(){
+  # Returns info about the machine and User login
+  info <- Sys.info()
+  
+  # Local directory on my PC
+  if(info['user']=='benku'){
+    # I keep my data on an external hdd for backup
+    setwd('E:')
+    
+    setwd('/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/')
+    outDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/data/'
+    dataDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/Liver Cancer/Pt13.a/'
+    plottingDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/plots/'
+    
+    # This is my local directory on our google cloud server - you might have to set up your own if the user permissions don't play well
+  }else if(info['user']=='bkw2118'){
+    setwd('/home/bkw2118/scRNASeq-CNVCaller')
+    outDir <- 'outDir/'
+    dataDir <- 'dataDir/'
+    plottingDir <- 'plots/'
+  }
+  
+  return(list(outDir, dataDir, plottingDir))
+}
 
 # Use source for homebrew scripts
-source('SetDirectory.R')
+
+# Made a really dumb mistake - tried to load a script to set the working directory, inherently meaning that we aren't in the workind directory to load the script. I'll think of an elegants workaround
+#source('Utils.R')
 
 # @Charlotte Please enter your own ifelse statement in this function
 dirs <- setDirectory()
@@ -137,3 +163,20 @@ sapply(markers.list, function(x) print(head(x, 20)))
 data.filtered <- data[,Idents(data)%in%c(0, 2)]
 data.filtered$cell.type <- ifelse(Idents(data.filtered)==0, 'HCC', 'Healthy')
 saveRDS(data.filtered, paste0(outDir, 'dataFiltered_', date, '.RDS'))
+data.filtered <- readRDS('/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/data/dataFiltered_2020-11-18.RDS')
+
+# Get HCC and Healthy Indices for proportional representation
+indices.HCC <- grep('HCC', data.filtered$cell.type)
+indices.Healthy <- grep('Healthy', data.filtered$cell.type)
+
+# Sample 10% of the data to make our mini scRNASeq dataset
+indices <- c(sample(indices.HCC, 
+                   size = round(length(indices.HCC)*0.1), 
+                   replace = F),
+             sample(indices.Healthy,
+                    size = round(length(indices.Healthy)*0.1),
+                    replace = F))
+data.small <- data.filtered[,indices]
+
+saveRDS(data.small, paste0(outDir, 'dataFiltSmall_', date, '.RDS'))
+write.csv(data.small@meta.data, paste0(outDir, 'metadataFiltSmall_', date, '.csv'))

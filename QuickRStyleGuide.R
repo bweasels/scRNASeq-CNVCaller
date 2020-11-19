@@ -5,7 +5,7 @@
 # Indexing in R starts at 1, not 0. Idk why.
 # '<-' is R's assignment operatior. However, '=' is also R's assignment operator, so use them when you want
 # c(1, 2, 3) is the same as [1, 2, 3] in python
-# ':' is a sequence operator -- 
+# ':' is a sequence operator
 1:3 == c(1, 2, 3)
 # skipping a dimension in when indexing a matrix implies all elements in that dimension
 # matrix[,c(1, 2)] returns the first two columns of the matrix
