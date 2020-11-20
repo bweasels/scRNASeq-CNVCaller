@@ -11,7 +11,7 @@ date <- Sys.Date()
 library(infercnv)
 
 data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
-geneLocs <- read.table('data/GeneLocs.txt',
+geneLocs <- read.table(paste0(dataDir, 'GeneLocs.txt'),
                        sep = '\t',
                        row.names = 1)
 
