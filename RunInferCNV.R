@@ -15,12 +15,12 @@ geneLocs <- read.table(paste0(dataDir, 'GeneLocs.txt'),
                        sep = '\t',
                        row.names = 1)
 
-data.compact <- data.compact[rownames(data.compact)%in%geneLocs[,1],]
-sampleAnnotation <- data.compact@meta.data
+data <- data[rownames(data)%in%geneLocs[,1],]
+sampleAnnotation <- data@meta.data
 sampleAnnotation <- data.frame(row.names = rownames(sampleAnnotation), 
                                sampleAnnotation$cell.type)
 
-infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data.compact@assays$RNA@counts),
+infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts),
                                      annotations_file = sampleAnnotation,
                                      gene_order_file = geneLocs,
                                      ref_group_names = c('Healthy'))
