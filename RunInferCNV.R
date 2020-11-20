@@ -11,7 +11,7 @@ date <- Sys.Date()
 library(infercnv)
 
 data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
-geneLocs <- read.table(paste0(dataDir, 'GeneLocs.txt'),
+geneLocs <- read.table(paste0(outDir, 'GeneLocs.txt'),
                        sep = '\t',
                        row.names = 1)
 
@@ -29,8 +29,13 @@ infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$R
 inferCNVOut <- paste0(outDir, 'InferCNV_', date)
 dir.create(inferCNVOut)
 
+# Auto detect the number of cpus
+# Otherwise it defaults to 4 and we only utilize 25% of our cloud server XD
+
+nCores <- parallel::detectCores()
 infercnv_obj <- infercnv::run(infercnv_obj,
                               cutoff = 0.1,
                               out_dir = inferCNVOut,
                               cluster_by_groups = T,
-                              HMM = T)
+                              HMM = T,
+                              num_threads = nCores)
