@@ -1,33 +1,9 @@
 ##To filter out all other weird cell types from the HCC dataset
-setDirectory <- function(){
-  # Returns info about the machine and User login
-  info <- Sys.info()
-  
-  # Local directory on my PC
-  if(info['user']=='benku'){
-    # I keep my data on an external hdd for backup
-    setwd('E:')
-    
-    setwd('/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/')
-    outDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/data/'
-    dataDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/Liver Cancer/Pt13.a/'
-    plottingDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/plots/'
-    
-    # This is my local directory on our google cloud server - you might have to set up your own if the user permissions don't play well
-  }else if(info['user']=='bkw2118'){
-    setwd('/home/bkw2118/scRNASeq-CNVCaller')
-    outDir <- 'outDir/'
-    dataDir <- 'dataDir/'
-    plottingDir <- 'plots/'
-  }
-  
-  return(list(outDir, dataDir, plottingDir))
-}
-
 # Use source for homebrew scripts
 
-# Made a really dumb mistake - tried to load a script to set the working directory, inherently meaning that we aren't in the workind directory to load the script. I'll think of an elegants workaround
-#source('Utils.R')
+# If working in RStudio we'll have to set our local working dir manually
+# This allows our scripts to run headless
+source('Utils.R')
 
 # @Charlotte Please enter your own ifelse statement in this function
 dirs <- setDirectory()
@@ -162,8 +138,12 @@ sapply(markers.list, function(x) print(head(x, 20)))
 # So we only want Clusters 0 & 2
 data.filtered <- data[,Idents(data)%in%c(0, 2)]
 data.filtered$cell.type <- ifelse(Idents(data.filtered)==0, 'HCC', 'Healthy')
-saveRDS(data.filtered, paste0(outDir, 'dataFiltered_', date, '.RDS'))
-data.filtered <- readRDS('/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/data/dataFiltered_2020-11-18.RDS')
+
+# Save a full sized version to tranfer to cloud
+# Has same name as other 
+dir.create(paste0(outDir, 'TxToCloud/'))
+saveRDS(data.filtered, paste0(outDir, 'dataFiltered.RDS'))
+dev.off()
 
 # Get HCC and Healthy Indices for proportional representation
 indices.HCC <- grep('HCC', data.filtered$cell.type)
@@ -178,5 +158,5 @@ indices <- c(sample(indices.HCC,
                     replace = F))
 data.small <- data.filtered[,indices]
 
-saveRDS(data.small, paste0(outDir, 'dataFiltSmall_', date, '.RDS'))
-write.csv(data.small@meta.data, paste0(outDir, 'metadataFiltSmall_', date, '.csv'))
+saveRDS(data.small, paste0(outDir, 'dataFiltered.RDS'))
+write.csv(data.small@meta.data, paste0(outDir, 'metadataFilt_', date, '.csv'))

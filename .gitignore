@@ -25,6 +25,7 @@
 vignettes/*.html
 vignettes/*.pdf
 *.pdf
+*.png
 
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
@@ -43,3 +44,11 @@ vignettes/*.pdf
 #10X scRNA-Seq data files
 *.tsv.gz
 *.mtx.gz
+
+#InferCNV Output file
+*.txt
+*.infercnv_obj
+*.mcmc_obj
+*.cell_groupings
+*.dat
+*.csv
