@@ -18,9 +18,9 @@ setDirectory <- function(){
     # I think we both should have permissions to mess with it so I'll set it as the default
   }else if(info['release']=='4.19.0-12-cloud-amd64'){
     setwd('/mnt/disks/ext/scRNASeq-CNVCaller')
-    outDir <- '/mnt/disks/ext/scRNASeq-CNVCaller/output'
-    dataDir <- '/mnt/disks/ext/scRNASeq-CNVCaller/data'
-    plottingDir <- '/mnt/disks/ext/scRNASeq-CNVCaller/plots'
+    outDir <- '/mnt/disks/ext/scRNASeq-CNVCaller/output/'
+    dataDir <- '/mnt/disks/ext/scRNASeq-CNVCaller/data/'
+    plottingDir <- '/mnt/disks/ext/scRNASeq-CNVCaller/plots/'
   }
   
   return(list(outDir, dataDir, plottingDir))
