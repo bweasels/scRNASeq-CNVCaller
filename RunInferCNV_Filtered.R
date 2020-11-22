@@ -18,12 +18,14 @@ geneLocs <- read.table(paste0(outDir, 'GeneLocs.txt'),
 data <- data[rownames(data)%in%geneLocs[,1],]
 sampleAnnotation <- data@meta.data
 sampleAnnotation <- data.frame(row.names = rownames(sampleAnnotation), 
-                               sampleAnnotation$cell.type)
+                               cellType = sampleAnnotation$cell.type)
 
+ref_groups <- unique(sampleAnnotation$cellType)
+ref_groups <- ref_groups[!grepl('HCC', ref_groups)]
 infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts),
                                      annotations_file = sampleAnnotation,
                                      gene_order_file = geneLocs,
-                                     ref_group_names = c('Healthy'))
+                                     ref_group_names = ref_groups)
 
 # Make an output directory for this run
 inferCNVOut <- paste0(outDir, 'InferCNV_', date)
@@ -31,7 +33,6 @@ dir.create(inferCNVOut)
 
 # Auto detect the number of cpus
 # Otherwise it defaults to 4 and we only utilize 25% of our cloud server XD
-
 nCores <- parallel::detectCores()
 infercnv_obj <- infercnv::run(infercnv_obj,
                               cutoff = 0.1,

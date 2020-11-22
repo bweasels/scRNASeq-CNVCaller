@@ -14,12 +14,13 @@ setDirectory <- function(){
     dataDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/Liver Cancer/Pt13.a/'
     plottingDir <- '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/plots/'
     
-    # This is my local directory on our google cloud server - you might have to set up your own if the user permissions don't play well
-  }else if(info['user']=='bkw2118'){
-    setwd('/home/bkw2118/scRNASeq-CNVCaller')
-    outDir <- 'outDir/'
-    dataDir <- 'dataDir/'
-    plottingDir <- 'plots/'
+    # Turns out adding storage adds an external disk, so I had to mount it and move everything there
+    # I think we both should have permissions to mess with it so I'll set it as the default
+  }else if(info['release']=='4.19.0-12-cloud-amd64'){
+    setwd('/mnt/disks/ext/scRNASeq-CNVCaller')
+    outDir <- '/mnt/disks/ext/output'
+    dataDir <- '/mnt/disks/ext/data'
+    plottingDir <- '/mnt/disks/ext/plots'
   }
   
   return(list(outDir, dataDir, plottingDir))

@@ -134,6 +134,11 @@ sapply(markers.list, function(x) print(head(x, 20)))
 # Cluster 4 - Cancer assoc Fibroblasts (they're kinda heterogenous...)
 # Cluster 5 - NK/T Cells
 # Cluster 6 - T Helper cells
+clusterNames <- c('HCC', 'Myeloid.Der', 'Healthy', 'CaF', 'CaF', 'NK-T.Cells', 'T-Helper')
+clusterNo <- c(0, 1, 2, 3, 4, 5, 6)
+data$cell.type <- clusterNames[match(Idents(data), clusterNo)]
+dir.create(paste0(outDir, 'TxToCloud/'))
+saveRDS(data, paste0(outDir, 'TxToCloud/data_all.RDS'))
 
 # So we only want Clusters 0 & 2
 data.filtered <- data[,Idents(data)%in%c(0, 2)]
@@ -141,9 +146,7 @@ data.filtered$cell.type <- ifelse(Idents(data.filtered)==0, 'HCC', 'Healthy')
 
 # Save a full sized version to tranfer to cloud
 # Has same name as other 
-dir.create(paste0(outDir, 'TxToCloud/'))
-saveRDS(data.filtered, paste0(outDir, 'dataFiltered.RDS'))
-dev.off()
+saveRDS(data.filtered, paste0(outDir, 'TxToCloud/dataFiltered.RDS'))
 
 # Get HCC and Healthy Indices for proportional representation
 indices.HCC <- grep('HCC', data.filtered$cell.type)
