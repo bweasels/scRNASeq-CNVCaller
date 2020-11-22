@@ -28,7 +28,7 @@ infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$R
                                      ref_group_names = ref_groups)
 
 # Make an output directory for this run
-inferCNVOut <- paste0(outDir, 'InferCNV_', date)
+inferCNVOut <- paste0(outDir, 'InferCNV_allCells_', date)
 dir.create(inferCNVOut)
 
 # Auto detect the number of cpus
