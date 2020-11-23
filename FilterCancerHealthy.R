@@ -5,7 +5,6 @@
 # This allows our scripts to run headless
 source('Utils.R')
 
-# @Charlotte Please enter your own ifelse statement in this function
 dirs <- setDirectory()
 outDir <- dirs[[1]]
 dataDir <- dirs[[2]]
@@ -23,7 +22,7 @@ set.seed(10000)
 #Seurat's function to load 10X scRNA-Seq data
 #Removes genes that are expressed in 3 or fewer cells, and cells that express fewer than 200 unique genes
 #data from https://www.nature.com/articles/s41467-019-14050-z?proof=t
-data <- Read10X(data.dir = '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/Liver Cancer/Pt14.d/')
+data <- Read10X(dataDir)
 data <- CreateSeuratObject(counts = data,
                            project = 'HCC',
                            min.cells = 3,
