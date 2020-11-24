@@ -3,7 +3,6 @@
 # Use source for homebrew scripts
 source('Utils.R')
 
-# @Charlotte Please enter your own ifelse statement in this function
 dirs <- setDirectory()
 outDir <- dirs[[1]]
 dataDir <- dirs[[2]]
@@ -18,14 +17,15 @@ date <- Sys.Date()
 #set.seed locks our random number indexer so we get repeatable results
 set.seed(10000)
 
-data <- readRDS(paste0(outDir, 'dataFiltered_2020-11-15.RDS'))
+#data <- readRDS(paste0(outDir, 'dataFiltered_2020-11-15.RDS'))
+data <- readRDS(paste0(outDir, 'data_all.RDS'))
 
 # Get essential stats for splatter simulation
 # 11K Cells took ~1.5 hours on my laptop
-if(!file.exists(outDir, 'InitialParams_2020-11-16.RDS')){
+if (!file.exists(paste0(outDir, 'InitialParams_2020-11-16.RDS'))) {
   params <- splatEstimate(as.matrix(data@assays$RNA@counts))
   saveRDS(params, paste0('InitialParams_', date, '.RDS'))
-}else{
+} else {
   params <- readRDS('InitialParams_2020-11-16.RDS')
 }
 
