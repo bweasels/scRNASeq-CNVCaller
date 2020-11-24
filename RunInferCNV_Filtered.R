@@ -1,3 +1,5 @@
+library(infercnv)
+
 # Load function
 source('Utils.R')
 
@@ -7,8 +9,6 @@ outDir <- dirs[[1]]
 dataDir <- dirs[[2]]
 plottingDir <- dirs[[3]]
 date <- Sys.Date()
-
-library(infercnv)
 
 # Load data, and the start stop locations of each transcript
 data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
