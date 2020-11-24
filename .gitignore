@@ -5,6 +5,7 @@
 # Session Data files
 *.RData
 *.RDS
+*.rds
 
 # User-specific files
 .Ruserdata
@@ -13,7 +14,8 @@
 *-Ex.R
 
 # Output files from R CMD build
-/*.tar.gz
+*.tar.gz
+*.fastq.gz
 
 # Output files from R CMD check
 /*.Rcheck/
@@ -52,3 +54,11 @@ vignettes/*.pdf
 *.cell_groupings
 *.dat
 *.csv
+
+#Cellranger output
+CNVCALLER/
+*.bam
+__CNVCALLER*
+
+#Personal troubleshooting files
+*.out
