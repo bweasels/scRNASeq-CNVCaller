@@ -1,20 +1,20 @@
 ##To filter out all other weird cell types from the HCC dataset
 # Use source for homebrew scripts
 
+#Load libraries and set date
+library(Seurat)
+library(ggplot2)
+library(cowplot)
+
 # If working in RStudio we'll have to set our local working dir manually
 # This allows our scripts to run headless
 source('Utils.R')
 
-# @Charlotte Please enter your own ifelse statement in this function
 dirs <- setDirectory()
 outDir <- dirs[[1]]
 dataDir <- dirs[[2]]
 plottingDir <- dirs[[3]]
 
-#Load libraries and set date
-library(Seurat)
-library(ggplot2)
-library(cowplot)
 date <- Sys.Date()
 
 #set.seed locks our random number indexer so we get repeatable results
@@ -23,7 +23,7 @@ set.seed(10000)
 #Seurat's function to load 10X scRNA-Seq data
 #Removes genes that are expressed in 3 or fewer cells, and cells that express fewer than 200 unique genes
 #data from https://www.nature.com/articles/s41467-019-14050-z?proof=t
-data <- Read10X(data.dir = '/OneDrive/PhD/Fall 2020/Computational Genomics/scRNASeq-CNVCaller/Liver Cancer/Pt14.d/')
+data <- Read10X(data.dir = dataDir)
 data <- CreateSeuratObject(counts = data,
                            project = 'HCC',
                            min.cells = 3,
@@ -137,8 +137,9 @@ sapply(markers.list, function(x) print(head(x, 20)))
 clusterNames <- c('HCC', 'Myeloid.Der', 'Healthy', 'CaF', 'CaF', 'NK-T.Cells', 'T-Helper')
 clusterNo <- c(0, 1, 2, 3, 4, 5, 6)
 data$cell.type <- clusterNames[match(Idents(data), clusterNo)]
-dir.create(paste0(outDir, 'TxToCloud/'))
-saveRDS(data, paste0(outDir, 'TxToCloud/data_all.RDS'))
+#dir.create(paste0(outDir, 'TxToCloud/'))
+#saveRDS(data, paste0(outDir, 'TxToCloud/data_all.RDS'))
+saveRDS(data, paste0(outDir, 'data_all.RDS'))
 
 # So we only want Clusters 0 & 2
 data.filtered <- data[,Idents(data)%in%c(0, 2)]
@@ -146,7 +147,8 @@ data.filtered$cell.type <- ifelse(Idents(data.filtered)==0, 'HCC', 'Healthy')
 
 # Save a full sized version to tranfer to cloud
 # Has same name as other 
-saveRDS(data.filtered, paste0(outDir, 'TxToCloud/dataFiltered.RDS'))
+#saveRDS(data.filtered, paste0(outDir, 'TxToCloud/dataFiltered.RDS'))
+saveRDS(data.filtered, paste0(outDir, 'dataFiltered.RDS'))
 
 # Get HCC and Healthy Indices for proportional representation
 indices.HCC <- grep('HCC', data.filtered$cell.type)
