@@ -31,3 +31,4 @@ if (!file.exists(paste0(outDir, 'InitialParams_2020-11-16.RDS'))) {
 
 # Need to figure out parameters to mock cnv variations
 sim <- splatSimulate(params)
+saveRDS(sim, paste0(outDir, 'data_sim.RDS'))
