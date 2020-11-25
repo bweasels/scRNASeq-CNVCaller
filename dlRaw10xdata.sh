@@ -12,9 +12,12 @@ curl $GEO_URL --output $BAM_FILE
 # Run bcltofastq on it all
 bamtofastq-1.3.2 --nthreads=16 $BAM_FILE $FASTQ_DIR
 
+# Variables for cellranger
 REFERENCE=/mnt/disks/ext/tools/cellranger-5.0.0/reference/refdata-gex-GRCh38-2020-A
 ID=CNVCALLER
 SAMPLE=PT14D
 
-cellranger count --id=$ID --transcriptome=$REFERENCE --fastqs=$FASTQ_DIR
+# Cell ranger outputs to pwd so move directory
+cd $OUT_DIR
+cellranger count --id=$ID --transcriptome=$REFERENCE --fastqs=$FASTQ_DIR --localcores=16
 exit

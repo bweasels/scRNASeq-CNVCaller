@@ -56,7 +56,7 @@ vignettes/*.pdf
 *.csv
 
 #Cellranger output
-CNVCALLER/
+data/
 *.bam
 __CNVCALLER*
 
