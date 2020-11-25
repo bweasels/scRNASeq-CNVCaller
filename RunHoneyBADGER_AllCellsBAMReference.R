@@ -11,6 +11,7 @@ date <- Sys.Date()
 library(HoneyBADGER)
 library(GenomicRanges)
 library(VariantAnnotation)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
 
 ##PREP SNP FILES
 # Load vcfFile
@@ -46,3 +47,6 @@ results <- getSnpMats10X(snps = snps,
 # Get the values required for that
 r <- results$refCount
 cov <- results$refCount + results$altCount
+
+# load transcripts to map SNPs to genes
+txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
