@@ -46,7 +46,7 @@ hb <- new('HoneyBADGER', name='Liver_Cancer')
 hb$setGexpMats(gexp.sc.init = HCC, 
                gexp.ref.init = ref, 
                mart.obj = mart.obj, 
-               filter = T, 
+               filter = F, 
                scale = T, 
                verbose = T)
 
@@ -61,14 +61,13 @@ print(range(hb$genes[unlist(hb$bound.genes.final)]))
 
 # Retest to ID posterior probability & get final results
 hb$retestIdentifiedCnvs(retestBoundGenes = T,
-                        retretestBoundSnps = F,
+                        retestBoundSnps = F,
                         verbose = T)
 
 results <- hb$summarizeResults(geneBased = T,
                                alleleBased = F)
 
 # Make result plot
-dir.create(paste0(plottingDir, 'HoneyBADGER_AllCells'))
 pdf(paste0(plottingDir, 'HoneyBADGERRes_AllCells_', date, '.pdf'))
 trees <- hb$visualizeResults(geneBased = T,
                              alleleBased = F,
@@ -78,8 +77,6 @@ trees <- hb$visualizeResults(geneBased = T,
 hc <- trees$hc
 order <- hc$labels[hc$order]
 
-hb$plotGexpProfile(cellOrder = order)
-hb$plotGexpProfile(cellOrder = order, 
-                   region = hb$cnvs[['gene-based']][['amp']])
-hb$plotGexpProfile(cellOrder = order, 
-                   region = hb$cnvs[['gene-based']][['del']])
+hb$plotGexpProfile()
+hb$plotGexpProfile(region = hb$cnvs[['gene-based']][['amp']])
+hb$plotGexpProfile(region = hb$cnvs[['gene-based']][['del']])
