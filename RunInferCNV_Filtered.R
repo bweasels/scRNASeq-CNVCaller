@@ -17,7 +17,7 @@ geneLocs <- read.table(paste0(outDir, 'GeneLocs.txt'),
                        row.names = 1)
 
 # Trim tx in data to match tx I was able to find (~500 genes different - all ribosomal varants)
-data <- data[rownames(data)%in%geneLocs[,1],]
+data <- data[rownames(data)[(rownames(data) %in% rownames(geneLocs))]]
 sampleAnnotation <- data@meta.data
 sampleAnnotation <- data.frame(row.names = rownames(sampleAnnotation), 
                                cellType = sampleAnnotation$cell.type)
