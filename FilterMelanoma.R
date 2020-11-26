@@ -8,13 +8,16 @@ plottingDir <- dirs[[3]]
 library(Seurat)
 library(ggplot2)
 library(cowplot)
+library(future)
 
 date <- Sys.Date()
 
 # Get the directories with the melanoma samples
 mel.dirs <- list.dirs(path = dataDir,
-                      full.names = T)
-mel.dirs <- grep('UMM', mel.dirs, value = T)
+                      full.names = T,
+		      recursive = T)
+
+mel.dirs <- grep('.*/UMM.*', mel.dirs, value = T)
 mel.samps <- gsub('.*(UMM.*)', '\\1', mel.dirs)
 
 # These labels are based on the plots generated between lines 118 & 136
@@ -23,6 +26,9 @@ clusterLabels <- list(data.frame(Cluster = c(0, 1, 2, 3, 4, 5, 6),
                       data.frame(Cluster = c(0, 1, 2, 3, 4),
                                  Label = c('Melanoma', 'Melanoma', 'Immune', 'Immune', 'Healthy')))
 names(clusterLabels) <- mel.samps
+
+# Set up parallization
+plan('multiprocess', workers = nCores <- parallel::detectCores())
 
 # Load the melanoma dataset and follow the paper's analysis methods
 for(i in 1:2){

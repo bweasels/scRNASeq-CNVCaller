@@ -37,12 +37,12 @@ snps <- snps[vi,]
 ## Make SNP Mats
 bamFile <- paste0(dataDir, 'cellRangerOutput/outs/possorted_genome_bam.bam')
 baiFile <- paste0(dataDir, 'cellRangerOutput/outs/possorted_genome_bam.bam.bai')
-barcodes <- paste0(dataDir, 'cellRangerOutput/outs/filtered_feature_bc_matrix/barcodes.tsv.gz')
+cellBarcodes <- paste0(dataDir, 'cellRangerOutput/outs/filtered_feature_bc_matrix/barcodes.tsv.gz')
 
 results <- getSnpMats10X(snps = snps,
                          bamFile = bamFile,
                          indexFile = baiFile,
-                         cellBarcodes = barcodes)
+                         barcodes = cellBarcodes)
 
 # Get the values required for that
 r <- results$refCount

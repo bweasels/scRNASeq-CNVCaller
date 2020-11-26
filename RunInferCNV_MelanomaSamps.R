@@ -1,4 +1,5 @@
 library(infercnv)
+library(parallel)
 
 # Load function
 source('Utils.R')
