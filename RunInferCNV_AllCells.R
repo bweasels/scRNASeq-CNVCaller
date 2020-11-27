@@ -47,3 +47,4 @@ infercnv_obj <- infercnv::run(infercnv_obj,
                               cluster_by_groups = T,
                               HMM = T,
                               num_threads = nCores)
+# Reference data size after inferCNV preprocessing: Cells= 3738 Genes= 3830
