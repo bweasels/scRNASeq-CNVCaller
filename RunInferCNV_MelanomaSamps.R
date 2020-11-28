@@ -12,10 +12,10 @@ plottingDir <- dirs[[3]]
 date <- Sys.Date()
 
 data.paths <- list.files(path = outDir,
-                         pattern = '_UMM',
+                         pattern = '_UMM.*.RDS$',
                          full.names = T)
 sampleNames <- gsub('.*Melanoma_(.*).RDS$', '\\1', data.paths)
-
+print(data.paths)
 # To run stuff in parallel, us mclapply (multi-core list apply) - it operates like a python lambda, but applied on elements of a list
 # There are equivalents for strings (sapply), and matrices (apply), and regular lists (lapply), but it needs the code packaged into a function
 mel.samps <- list(list(data.paths[1], sampleNames[1], outDir),
@@ -63,7 +63,8 @@ RunInferCNV <- function(inputs){
                                 out_dir = inferCNVOut,
                                 cluster_by_groups = T,
                                 HMM = T,
-                                num_threads = nCores)
+                                num_threads = nCores,
+				denoise = T)
 }
 
 mclapply(mel.samps, RunInferCNV)
