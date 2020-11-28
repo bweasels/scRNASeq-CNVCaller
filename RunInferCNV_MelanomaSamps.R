@@ -35,11 +35,11 @@ RunInferCNV <- function(inputs){
   # So InferCNV is using all the chromosomes (including mito etc, so trim them out, and leave chr 1-22
   # Also it seems like it tries to order chr as a factor, so hard setting order
   geneLocs <- geneLocs[grep('chr[0-9]+$', geneLocs$V2),]
-  geneLocs$v2 <- as.factor(geneLocs$V2,
-                           levels = 'chr1', 'chr2', 'chr3', 'chr4', 'chr5', 'chr6',
-                           'chr7', 'chr8', 'chr9', 'chr10', 'chr11', 'chr12', 'chr13',
-                           'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chr20',
-                           'chr21', 'chr22')
+  geneLocs$v2 <- factor(geneLocs$V2,
+                        levels = c('chr1', 'chr2', 'chr3', 'chr4', 'chr5', 'chr6',
+                        'chr7', 'chr8', 'chr9', 'chr10', 'chr11', 'chr12', 'chr13',
+                        'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chr20',
+                        'chr21', 'chr22'))
   
   # Trimming dataset to genes available in GeneLocs (~500 genes different - all ribosomal variants)
   data <- data[rownames(data)[(rownames(data) %in% rownames(geneLocs))]]
