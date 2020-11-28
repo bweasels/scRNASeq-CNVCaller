@@ -29,17 +29,22 @@ RunInferCNV <- function(inputs){
   
   # Load data, and the start stop locations of each transcript
   data <- readRDS(input.dir)
-  geneLocs <- read.table(paste0(outDir, 'GeneLocs.txt'),
-                         sep = '\t',
-                         row.names = 1)
+  geneLocs.temp <- read.table(paste0(outDir, 'GeneLocs.txt'),
+                              sep = '\t',
+                              row.names = 1)
   # So InferCNV is using all the chromosomes (including mito etc, so trim them out, and leave chr 1-22
-  # Also it seems like it tries to order chr as a factor, so hard setting order
-  geneLocs <- geneLocs[grep('chr[0-9]+$', geneLocs$V2),]
-  geneLocs$v2 <- factor(geneLocs$V2,
-                        levels = c('chr1', 'chr2', 'chr3', 'chr4', 'chr5', 'chr6',
-                        'chr7', 'chr8', 'chr9', 'chr10', 'chr11', 'chr12', 'chr13',
-                        'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chr20',
-                        'chr21', 'chr22'))
+  geneLocs.temp <- geneLocs.temp[grep('chr[0-9]+$', geneLocs.temp$V2),]
+  
+  # The plotting function orders chromosomes by order that they appear in our gene Locs so reorder
+  chrOrder <- c('chr1', 'chr2', 'chr3', 'chr4', 'chr5', 'chr6', 'chr7', 'chr8', 'chr9', 'chr10', 'chr11', 
+                'chr12', 'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chr20', 'chr21', 'chr22')
+
+  # Yes this method of sorting is hacky, but it only took me 2 min to implement and I'm a bit rushed
+  geneLocs <- geneLocs.temp[,1]
+  for(j in 1:length(chrOrder)){
+    geneLocs <- rbind(geneLocs, geneLocs.temp[geneLocs.temp$V2%in%chrOrder[j],])
+  }
+  geneLocs <- geneLocs[2:nrow(geneLocs),]
   
   # Trimming dataset to genes available in GeneLocs (~500 genes different - all ribosomal variants)
   data <- data[rownames(data)[(rownames(data) %in% rownames(geneLocs))]]
