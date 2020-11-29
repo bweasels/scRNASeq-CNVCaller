@@ -2,7 +2,7 @@
 library(CaSpER)
 library(Seurat)
 
-source('Utils.R')
+source('../Utils.R')
 dirs <- setDirectory()
 outputDir <- dirs[[1]]
 dataDir <- dirs[[2]]
