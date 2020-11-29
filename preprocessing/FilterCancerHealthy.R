@@ -23,7 +23,7 @@ set.seed(10000)
 #Seurat's function to load 10X scRNA-Seq data
 #Removes genes that are expressed in 3 or fewer cells, and cells that express fewer than 200 unique genes
 #data from https://www.nature.com/articles/s41467-019-14050-z?proof=t
-data <- Read10X(data.dir = paset0(dataDir, 'Pt13.a/')
+data <- Read10X(data.dir = paste0(dataDir)) #, 'Pt13.a/'))
 data <- CreateSeuratObject(counts = data,
                            project = 'HCC',
                            min.cells = 3,

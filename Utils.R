@@ -16,7 +16,7 @@ setDirectory <- function(){
 
     }else if(info['user']=='charlotterochereau'){
     #setwd('~/Code/scRNASeq-CNVCaller')
-    outDir <- 'outputs/'
+    outDir <- 'output/'
     dataDir <- 'raw_data/'
     plottingDir <- 'plots/'
     
