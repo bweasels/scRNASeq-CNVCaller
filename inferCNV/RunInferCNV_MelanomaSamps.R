@@ -40,11 +40,10 @@ RunInferCNV <- function(inputs){
                 'chr12', 'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chr20', 'chr21', 'chr22')
 
   # Yes this method of sorting is hacky, but it only took me 2 min to implement and I'm a bit rushed
-  geneLocs <- geneLocs.temp[1,,drop = F]
+  geneLocs <- c()
   for(j in 1:length(chrOrder)){
     geneLocs <- rbind(geneLocs, geneLocs.temp[geneLocs.temp$V2%in%chrOrder[j],])
   }
-  geneLocs <- geneLocs[2:nrow(geneLocs),]
   
   # Trimming dataset to genes available in GeneLocs (~500 genes different - all ribosomal variants)
   data <- data[rownames(data)[(rownames(data) %in% rownames(geneLocs))]]

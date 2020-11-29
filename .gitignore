@@ -62,3 +62,9 @@ __CNVCALLER*
 
 #Personal troubleshooting files
 *.out
+
+#HoneyBADGER Variant Files
+*.gz
+
+#CaSpER Variant file
+*.snp
