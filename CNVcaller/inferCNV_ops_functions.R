@@ -2,7 +2,7 @@ reaching_step <- function(up_to_step,step_count){
   # Returns inferCNV obj at current step
   if (up_to_step == step_count) {
     flog.info("Reached up_to_step")
-    return(infercnv_obj)
+    return(infercnv_obj,step_count)
   }
 }
 
@@ -39,7 +39,7 @@ step_remove_low_expr_genes <- function(step_count,cutoff,min_cells_per_gene,skip
   }
 }
 
-step_normalize_by_seq_depth <- function(step_count,HMM,HMM_type,sim_method,hspike_aggregate_normals,reload_info){
+step_normalize_by_seq_depth <- function(step_count,skip_past,HMM,HMM_type,sim_method,hspike_aggregate_normals,reload_info){
   # Normalizes by sequencing depth
   step_count = step_count + 1 # 3
   flog.info(sprintf("\n\n\tSTEP %02d: normalization by sequencing depth\n", step_count))
@@ -65,8 +65,8 @@ step_normalize_by_seq_depth <- function(step_count,HMM,HMM_type,sim_method,hspik
   }
 }
 
-step_log_transform <- function(step_count,skip_past,reload_info,k_obs_groups,cluster_by_groups,cluster_references,out_dir,
-                               output_format,png_res,useRaster){
+step_log_transform <- function(step_count,skip_past,reload_info,plot_steps,k_obs_groups,cluster_by_groups,cluster_references,
+                               out_dir,output_format,png_res,useRaster){
   # Transforms to log scale
   step_count = step_count + 1 # 4
   flog.info(sprintf("\n\n\tSTEP %02d: log transformation of data\n", step_count))
@@ -97,8 +97,8 @@ step_log_transform <- function(step_count,skip_past,reload_info,k_obs_groups,clu
   }
 }
 
-step_scale_expr_data <- function(step_count,skip_past,reload_info,k_obs_groups,cluster_by_groups,cluster_references,out_dir,
-                                 output_format,png_res,useRaster){
+step_scale_expr_data <- function(step_count,skip_past,reload_info,plot_steps,k_obs_groups,cluster_by_groups,
+                                 cluster_references,out_dir,output_format,png_res,useRaster){
   # Scales all expression data
   step_count = step_count + 1 # 5
   if (scale_data) {
@@ -133,7 +133,7 @@ step_scale_expr_data <- function(step_count,skip_past,reload_info,k_obs_groups,c
   }
 }
 
-step_split_ref_data_into_groups <- function(){
+step_split_ref_data_into_groups <- function(step_count,skip_past,reload_info, num_ref_groups,hclust_method){
   # Split the reference data into groups if requested
   if (!is.null(num_ref_groups)) {
     
@@ -154,7 +154,9 @@ step_split_ref_data_into_groups <- function(){
   }
 }
 
-step_compute_subclusters_random_trees <- function(){
+step_compute_subclusters_random_trees <- function(step_count,skip_past,reload_info,analysis_mode,tumor_subcluster_partition_method,
+                                                  tumor_subcluster_pval,hclust_method,cluster_by_groups,plot_steps,k_obs_groups,
+                                                  cluster_references,out_dir,output_format,png_res,useRaster){
   # Optional
   # Computes tumor subclusters via random trees
   # Only if splitting the reference data into groups is requested
@@ -192,7 +194,8 @@ step_compute_subclusters_random_trees <- function(){
   }
 }
 
-step_subtract_average_ref <- function(){
+step_subtract_average_ref <- function(step_count,skip_past,reload_info,ref_subtract_use_mean_bounds,plot_steps,k_obs_groups,
+                                      cluster_by_groups,cluster_references,out_dir,output_format,png_res,useRaster){
   # Subtract average of reference data (before smoothing)
   # Since we're in log space, this now becomes log(fold_change)
   step_count = step_count + 1 # 8
@@ -222,7 +225,9 @@ step_subtract_average_ref <- function(){
   }
 }
 
-step_apply_max_centered_expr_threshold <- function(){
+step_apply_max_centered_expr_threshold <- function(step_count,skip_past,reload_info,max_centered_threshold,threshold,
+                                                   plot_steps,k_obs_groups,cluster_by_groups,cluster_references,
+                                                   out_dir,output_format,png_res,useRaster){
   # Applies maximum centered expression thresholds to data
   # Caps values between threshold and -threshold, retaining earlier center
   step_count = step_count + 1 # 9
@@ -263,7 +268,8 @@ step_apply_max_centered_expr_threshold <- function(){
   }
 }
 
-step_smooth_by_chr <- function(){
+step_smooth_by_chr <- function(step_count,skip_past,reload_info,smooth_method,window_length,plot_steps,k_obs_groups,
+                               cluster_by_groups,cluster_references,out_dir,output_format,png_res,useRaster){
   # For each cell, smoothes the data along chromosome with gene windows
   step_count = step_count + 1 # 10
   flog.info(sprintf("\n\n\tSTEP %02d: Smoothing data per cell by chromosome\n", step_count))
@@ -305,7 +311,8 @@ step_smooth_by_chr <- function(){
   }
 }
 
-step_re_centers_data <- function(){
+step_re_centers_data <- function(step_count,skip_past,reload_info,plot_steps,k_obs_groups,cluster_by_groups,
+                                 cluster_references,out_dir,output_format,png_res,useRaster){
   # Centers cells/observations after smoothing. 
   # Helps reduce the effect of complexity.
   step_count = step_count + 1 # 11
@@ -338,7 +345,9 @@ step_re_centers_data <- function(){
   }
 }
 
-step_remove_avg_after_smoothing <- function(){
+step_remove_avg_after_smoothing <- function(step_count,skip_past,reload_info,ref_subtract_use_mean_bounds,
+                                            plot_steps,k_obs_groups,cluster_by_groups,cluster_references,
+                                            out_dir,output_format,png_res,useRaster){
   # Subtracts average reference (adjustment after smoothing)
   step_count = step_count + 1 # 12
   flog.info(sprintf("\n\n\tSTEP %02d: removing average of reference data (after smoothing)\n", step_count))
@@ -358,7 +367,7 @@ step_remove_avg_after_smoothing <- function(){
                cluster_references=cluster_references,
                out_dir=out_dir,
                title=sprintf("%02d_remove_average",step_count),
-               output_filename=sprintf("infercnv.%02d_remove_average", step_count),
+               output_filename=sprintf("infercnv.%02d_remove_average",step_count),
                output_format=output_format,
                write_expr_matrix=TRUE,
                png_res=png_res,
@@ -367,7 +376,9 @@ step_remove_avg_after_smoothing <- function(){
   }
 }
 
-step_remove_chr_ends <- function(){
+step_remove_chr_ends <- function(step_count,skip_past,reload_info,remove_genes_at_chr_ends,smooth_method,
+                                 window_length,plot_steps,k_obs_groups,cluster_by_groups,cluster_references,
+                                 out_dir,output_format,png_res,useRaster){
   # If requested, removes genes at chromosome ends
   step_count = step_count + 1 # 13
   if (remove_genes_at_chr_ends == TRUE && smooth_method != 'coordinates') {
@@ -401,7 +412,8 @@ step_remove_chr_ends <- function(){
   }
 }
 
-step_invert_log_transform <- function(){
+step_invert_log_transform <- function(step_count,skip_past,reload_info,plot_steps,k_obs_groups,
+                                      cluster_by_groups,cluster_references,out_dir,output_format,png_res,useRaster){
   # Inverts log transform  (converts from log(FC) to FC)
   step_count = step_count + 1 # 14
   flog.info(sprintf("\n\n\tSTEP %02d: invert log2(FC) to FC\n", step_count))
@@ -432,7 +444,10 @@ step_invert_log_transform <- function(){
   }
 }
 
-step_cluster_samples <- function(){
+step_cluster_samples <- function(step_count,skip_past,reload_info,analysis_mode,tumor_subcluster_partition_method,
+                                 tumor_subcluster_pval,hclust_method,cluster_by_groups,
+                                 plot_steps,k_obs_groups,cluster_references,out_dir,output_format,
+                                 png_res,useRaster){
   # Clusters samples if tumor subclusters not requested
   # Else computes tumor subclusters via a partition method other than random trees
   #
@@ -520,7 +535,9 @@ step_cluster_samples <- function(){
   }
 }
 
-step_remove_outliers <- function(){
+step_remove_outliers <- function(step_count,skip_past,reload_info,prune_outliers,outlier_method_bound,outlier_lower_bound,
+                                 outlier_upper_bound,plot_steps,k_obs_groups,cluster_by_groups,cluster_references,out_dir,
+                                 output_format,png_res,useRaster){
   # Removes outliers for visualization (optional)
   step_count = step_count + 1 # 16
   if (prune_outliers) {
@@ -561,7 +578,10 @@ step_remove_outliers <- function(){
   }
 }
 
-step_run_hmm <- function(){
+step_run_hmm <- function(step_count,skip_past,reload_info,analysis_mode,skip_hmm,HMM,HMM_type,HMM_transition_prob,
+                         HMM_i3_pval,HMM_i3_use_KS,tumor_subcluster_partition_method,hclust_method,hmm_resume_file_token,
+                         out_dir,hmm_center,HMM_report_by,no_plot,k_obs_groups,cluster_by_groups,cluster_references,
+                         output_format,hmm_state_range,png_res,useRaster){
   # Computes HMM-based CNV prediction
   step_count = step_count + 1 # 17
   hmm_resume_file_token = paste0(resume_file_token, ".hmm_mode-", analysis_mode)
@@ -669,7 +689,10 @@ step_run_hmm <- function(){
   
 }
 
-step_run_bayesian_network <- function(){
+step_run_bayesian_network <- function(step_count,skip_past,reload_info,skip_hmm,HMM,BayesMaxPNormal,out_dir,no_plot,
+                                      hmm_resume_file_token,num_threads,plot_probabilities,diagnostics,HMM_type,
+                                      k_obs_groups,cluster_by_groups,reassignCNVs,cluster_references,output_format,
+                                      png_res,useRaster){
   # Runs Bayesian Network Model on HMM predicted CNV's
   step_count = step_count + 1 # 18
   if (skip_hmm < 2) {
@@ -745,7 +768,9 @@ step_run_bayesian_network <- function(){
   }
 }
 
-step_convert_states <- function(){
+step_convert_states <- function(step_count,skip_past,reload_info,skip_hmm,HMM,HMM_type,no_plot,k_obs_groups,
+                                cluster_by_groups,cluster_references,out_dir,hmm_resume_file_token,
+                                BayesMaxPNormal,output_format,png_res,useRaster){
   # Converts HMM-based CNV states to representative intensity values
   step_count = step_count + 1 # 19
   if (skip_hmm < 3) {
@@ -784,7 +809,9 @@ step_convert_states <- function(){
   }
 }
 
-step_filter_DE_genes <- function(){
+step_filter_DE_genes <- function(step_count,skip_past,reload_info,mask_nonDE_genes,mask_nonDE_pval,test.use,
+                                 require_DE_all_normals,plot_steps,k_obs_groups,cluster_by_groups,cluster_references,
+                                 out_dir,output_format,png_res,useRaster){
   # Alternative to HMM prediction: filters significantly DE genes
   step_count = step_count + 1 # 20
   if (mask_nonDE_genes) {
@@ -818,7 +845,7 @@ step_filter_DE_genes <- function(){
                  cluster_references=cluster_references,
                  out_dir=out_dir,
                  title=sprintf("%02d_mask_nonDE",step_count),
-                 output_filename=sprintf("infercnv.%02d_mask_nonDE", step_count),
+                 output_filename=sprintf("infercnv.%02d_mask_nonDE",step_count),
                  output_format=output_format,
                  write_expr_matrix=TRUE,
                  png_res=png_res,
@@ -829,7 +856,8 @@ step_filter_DE_genes <- function(){
   }
 }
 
-step_denoise <- function(){
+step_denoise <- function(step_count,skip_past,reload_info,denoise,noise_filter,noise_logistic,sd_amplifier,no_plot,
+                         k_obs_groups,cluster_by_groups,cluster_references,out_dir,output_format,png_res,useRaster){
   # Alternative to HMM prediction: denoising
   step_count = step_count + 1 # 21
   if (denoise) {
