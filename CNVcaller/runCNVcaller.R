@@ -3,6 +3,7 @@ library(infercnv)
 
 # Load functions
 source('CNVcaller/inferCNV_ops_functions.R')
+source('CNVcaller/inferCNV.R')
 
 refactored_run <- function(infercnv_obj,
                 
@@ -96,8 +97,6 @@ refactored_run <- function(infercnv_obj,
                 up_to_step=100
                 
 ) {
-  
-  
   smooth_method = match.arg(smooth_method)
   HMM_type = match.arg(HMM_type)
   if (HMM && HMM_type == 'i6' && smooth_method == 'coordinates') {
@@ -142,7 +141,6 @@ refactored_run <- function(infercnv_obj,
   for (n in arg_names) {
     call_match[[n]] = get(n)
   }
-  
   
   current_args = as.list(call_match[-which(names(call_match) == "" | names(call_match) == "infercnv_obj")])
   
@@ -223,60 +221,89 @@ refactored_run <- function(infercnv_obj,
   step_normalize_by_seq_depth(step_count,HMM,HMM_type,sim_method,hspike_aggregate_normals,reload_info)
   reaching_step(up_to_step, step_count)
   # 4
-  step_log_transform(step_count,skip_past,reload_info,k_obs_groups,cluster_by_groups,
+  step_log_transform(step_count,skip_past,reload_info,plot_steps,k_obs_groups,cluster_by_groups,
                      cluster_references,out_dir,output_format,png_res,useRaster)
   reaching_step(up_to_step, step_count)
   # 5
-  step_scale_expr_data(step_count,skip_past,reload_info,k_obs_groups,cluster_by_groups,cluster_references,out_dir,
-                        output_format,png_res,useRaster)
-  reaching_step(up_to_step, step_count)
+  #step_scale_expr_data(step_count,skip_past,reload_info,plot_steps,k_obs_groups,cluster_by_groups,
+                        #cluster_references,out_dir,output_format,png_res,useRaster)
+  #reaching_step(up_to_step, step_count)
   # 6
-#  step_split_ref_data_into_groups()
-#  reaching_step(up_to_step, step_count)
+  #step_split_ref_data_into_groups(step_count,skip_past,reload_info, num_ref_groups,hclust_method)
+  #reaching_step(up_to_step, step_count)
   # 7
- # step_compute_subclusters_random_trees()
+  #step_compute_subclusters_random_trees(step_count,skip_past,reload_info,analysis_mode,tumor_subcluster_partition_method,
+                                          #tumor_subcluster_pval,hclust_method,cluster_by_groups,plot_steps,k_obs_groups,
+                                          #cluster_references,out_dir,output_format,png_res,useRaster)
  # reaching_step(up_to_step, step_count)
   # 8
- # step_subtract_average_ref()
- # reaching_step(up_to_step, step_count)
+  step_subtract_average_ref(step_count,skip_past,reload_info,ref_subtract_use_mean_bounds,plot_steps,
+                            k_obs_groups,cluster_by_groups,cluster_references,out_dir,output_format,
+                            png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 9
- # step_apply_max_centered_expr_threshold()
- # reaching_step(up_to_step, step_count)
+  step_apply_max_centered_expr_threshold(step_count,skip_past,reload_info,max_centered_threshold,threshold,plot_steps,
+                                         k_obs_groups,cluster_by_groups,cluster_references,out_dir,output_format,
+                                         png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 10
- # step_smooth_by_chr()
- # reaching_step(up_to_step, step_count)
+  step_smooth_by_chr(step_count,skip_past,reload_info,smooth_method,window_length,plot_steps,k_obs_groups,
+                      cluster_by_groups,cluster_references,out_dir,output_format,png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 11
- # step_re_centers_data()
- # reaching_step(up_to_step, step_count)
+  step_re_centers_data(step_count,skip_past,reload_info,plot_steps,k_obs_groups,cluster_by_groups,
+                        cluster_references,out_dir,output_format,png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 12
- # step_remove_avg_after_smoothing()
- # reaching_step(up_to_step, step_count)
+  step_remove_avg_after_smoothing(step_count,skip_past,reload_info,ref_subtract_use_mean_bounds,
+                                  plot_steps,k_obs_groups,cluster_by_groups,cluster_references,
+                                  out_dir,output_format,png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 13
- # step_remove_chr_ends()
- # reaching_step(up_to_step, step_count)
+  #step_remove_chr_ends(step_count,skip_past,reload_info,remove_genes_at_chr_ends,smooth_method,
+                       #window_length,plot_steps,k_obs_groups,cluster_by_groups,
+                       #cluster_references,out_dir,output_format,png_res,useRaster)
+  #reaching_step(up_to_step, step_count)
   # 14
- # step_invert_log_transform()
- # reaching_step(up_to_step, step_count)
+  step_invert_log_transform(step_count,skip_past,reload_info,plot_steps,k_obs_groups,cluster_by_groups,
+                            cluster_references,out_dir,output_format,png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 15
- # step_cluster_samples()
- # reaching_step(up_to_step, step_count)
+  step_cluster_samples(step_count,skip_past,reload_info,analysis_mode,tumor_subcluster_partition_method,
+                       tumor_subcluster_pval,hclust_method,cluster_by_groups,tumor_subcluster_partition_method,
+                       plot_steps,k_obs_groups,cluster_by_groups,cluster_references,out_dir,output_format,
+                       png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 16
- # step_remove_outliers()
- # reaching_step(up_to_step, step_count)
+  #step_remove_outliers(step_count,skip_past,reload_info,prune_outliers,outlier_method_bound,outlier_lower_bound,
+                       #outlier_upper_bound,plot_steps,k_obs_groups,cluster_by_groups,cluster_references,out_dir,
+                       #output_format,png_res,useRaster)
+  #reaching_step(up_to_step, step_count)
   # 17
- # step_run_hmm()
- # reaching_step(up_to_step, step_count)
+  step_run_hmm(step_count,skip_past,reload_info,analysis_mode,skip_hmm,HMM,HMM_type,HMM_transition_prob,
+               HMM_i3_pval,HMM_i3_use_KS,tumor_subcluster_partition_method,hclust_method,hmm_resume_file_token,
+               out_dir,hmm_center,HMM_report_by,no_plot,k_obs_groups,cluster_by_groups,cluster_references,
+               output_format,hmm_state_range,png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 18
- # step_run_bayesian_network()
- # reaching_step(up_to_step, step_count)
+  step_run_bayesian_network(step_count,skip_past,reload_info,skip_hmm,HMM,BayesMaxPNormal,out_dir,no_plot,
+                            hmm_resume_file_token,num_threads,plot_probabilities,diagnostics,HMM_type,
+                            k_obs_groups,cluster_by_groups,reassignCNVs,cluster_references,output_format,
+                            png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 19
- # step_convert_states()
- # reaching_step(up_to_step, step_count)
+  step_convert_states(step_count,skip_past,reload_info,skip_hmm,HMM,HMM_type,no_plot,k_obs_groups,
+                      cluster_by_groups,cluster_references,out_dir,hmm_resume_file_token,
+                      BayesMaxPNormal,output_format,png_res,useRaster)
+  reaching_step(up_to_step, step_count)
   # 20
- # step_filter_DE_genes()
+  #step_filter_DE_genes(step_count,skip_past,reload_info,mask_nonDE_genes,mask_nonDE_pval,test.use,
+                       #require_DE_all_normals,plot_steps,k_obs_groups,cluster_by_groups,cluster_references,
+                       #out_dir,output_format,png_res,useRaster)
   #reaching_step(up_to_step, step_count)
   # 21
-#  step_denoise()
+  #step_denoise(step_count,skip_past,reload_info,denoise,noise_filter,noise_logistic,sd_amplifier,no_plot,
+               #k_obs_groups,cluster_by_groups,cluster_references,out_dir,output_format,png_res,useRaster)
   
   return(infercnv_obj)
 }
