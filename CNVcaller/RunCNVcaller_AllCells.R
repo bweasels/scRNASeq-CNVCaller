@@ -1,6 +1,7 @@
 library(infercnv)
 
-source('CNVcaller/runCNVcaller.R')
+#source('CNVcaller/runCNVcaller.R')
+source('CNVcaller/inferCNV_ops_trimmed.R')
 source('Utils.R')
 
 # Try to run CNVcaller on the scRNASeq dataset
@@ -11,7 +12,7 @@ plottingDir <- dirs[[3]]
 date <- Sys.Date()
 
 # Load data, and the start stop locations of each transcript
-data <- readRDS(paste0(outDir, 'data_all.RDS'))
+data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
 geneLocs.temp <- read.table(paste0(outDir, 'GeneLocs.txt'),
                             sep = '\t',
                             row.names = 1)
@@ -54,7 +55,8 @@ dir.create(CNVcallerOut)
 nCores <- parallel::detectCores()
 
 # Run infercnv
-infercnv_obj <- refactored_run(infercnv_obj,
+#infercnv_obj <- refactored_run(infercnv_obj,
+infercnv_obj <- run_no_smoothing(infercnv_obj,
                                 cutoff = 0.1,
                                 out_dir = CNVcallerOut,
                                 cluster_by_groups = T,
