@@ -2,7 +2,7 @@ reaching_step <- function(up_to_step,step_count){
   # Returns inferCNV obj at current step
   if (up_to_step == step_count) {
     flog.info("Reached up_to_step")
-    return(infercnv_obj,step_count)
+    return(infercnv_obj)
   }
 }
 
