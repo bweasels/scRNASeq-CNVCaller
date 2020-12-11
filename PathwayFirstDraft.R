@@ -18,9 +18,13 @@ binSize <- 5 #Number of cells to bin by
 dist.method <- 'euclidean' # Options: "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski"
 nIter <- 100000 #Number of iterations for the null pvalue distributions
 pThresh <- 0.05 #Pvalue threshold for enriched pathways
-numCores <- 1 # Num cores for my parallel hackery to solve my slow code
+if(Sys.info()[[1]]=='Windows'){
+  numCores <- 1 # Windows handles parallelization differently than linux
+} else {
+  numCores <- detectCores() 
+}
 plottingFlag <- T # If trying new pathways, validate chromosomal coverage with a plot
-validateClustering <- F # Validate the performance of distance vs Joccard index measurements of clustering - WILL ONLY USE PC1 & PC2
+validateClustering <- F # Validate the performance of distance vs Joccard index measurements of clustering - WILL ONLY USE PC1 & PC2z
 
 if(validateClustering){
   warning('Will only Cluster using the first 2 PCs for interpretability w/ reduced performance')
