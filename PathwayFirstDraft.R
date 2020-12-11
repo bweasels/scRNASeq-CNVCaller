@@ -18,8 +18,13 @@ binSize <- 5 #Number of cells to bin by
 dist.method <- 'euclidean' # Options: "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski"
 nIter <- 100000 #Number of iterations for the null pvalue distributions
 pThresh <- 0.05 #Pvalue threshold for enriched pathways
-numCores <- detectCores() # Num cores for my parallel hackery to solve my slow code
-plottingFlag <- F # If trying new pathways, validate chromosomal coverage with a plot
+numCores <- 1 # Num cores for my parallel hackery to solve my slow code
+plottingFlag <- T # If trying new pathways, validate chromosomal coverage with a plot
+validateClustering <- F # Validate the performance of distance vs Joccard index measurements of clustering - WILL ONLY USE PC1 & PC2
+
+if(validateClustering){
+  warning('Will only Cluster using the first 2 PCs for interpretability w/ reduced performance')
+}
 
 # Load data and simulate InferCNV's preprocessing steps
 data <- readRDS('data/TxToCloud/data_all.RDS')
@@ -49,7 +54,8 @@ data.pca <- Embeddings(data, reduction='pca')
 p.mat <- .CalculateDistance(PCAEmbeddings = data.pca,
                            nCores = numCores, 
                            binSize = binSize,
-                           plot = plottingFlag)
+                           plot = plottingFlag,
+                           valClust = validateClustering)
 
 # Get top bin probability and then bin cells via the most probable neighbors
 nearestCells <- apply(p.mat, 2, function(x) rownames(p.mat)[order(x, decreasing = F)[1:binSize]])

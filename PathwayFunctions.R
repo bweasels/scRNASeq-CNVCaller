@@ -3,13 +3,17 @@
 ####################################################################
 # Function to calculate the probability that a cell is its neighbor
 # Output: nCells x nCells matrix of pairwise probabilities of overlap
-.CalculateDistance <- function(PCAEmbeddings, nCores, binSize, plot=F){
+.CalculateDistance <- function(PCAEmbeddings, nCores, binSize, plot=F, valClust = F){
   require(parallel)
   
   # Identify the distance from one point to another
-  dists <- as.matrix(dist(PCAEmbeddings[,1:2], 
-                          method = dist.method))
-  
+  if(valClust){
+    dists <- as.matrix(dist(PCAEmbeddings[,1:2], 
+                            method = dist.method))
+  } else{
+    dists <- as.matrix(dist(PCAEmbeddings, 
+                            method = dist.method))
+  }
   # Convert unique names to numbers to keep memory low
   lookup <- data.frame(CellBarcode = rownames(dists),
                        Code = 1:nrow(dists))
