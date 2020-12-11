@@ -15,7 +15,7 @@ date <- Sys.Date()
 # Get the directories with the melanoma samples
 mel.dirs <- list.dirs(path = dataDir,
                       full.names = T,
-		      recursive = T)
+                      recursive = T)
 
 mel.dirs <- grep('.*/UMM.*', mel.dirs, value = T)
 mel.samps <- gsub('.*(UMM.*)', '\\1', mel.dirs)
