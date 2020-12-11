@@ -3,11 +3,11 @@
 ####################################################################
 # Function to calculate the probability that a cell is its neighbor
 # Output: nCells x nCells matrix of pairwise probabilities of overlap
-.CalculateDistance <- function(PCAEmbeddings, nCores, binSize){
+.CalculateDistance <- function(PCAEmbeddings, nCores, binSize, plot=F){
   require(parallel)
   
   # Identify the distance from one point to another
-  dists <- as.matrix(dist(PCAEmbeddings, 
+  dists <- as.matrix(dist(PCAEmbeddings[,1:2], 
                           method = dist.method))
   
   # Convert unique names to numbers to keep memory low
@@ -16,6 +16,7 @@
   rownames(dists) <- lookup$Code
   
   dists <- as.list(as.data.frame(dists))
+  
   # Sort each column & replace with the code for the closest to farthest cells
   dists <- mclapply(dists, function(x) as.numeric(lookup$Code[order(x)]), 
                        mc.cores = nCores)
@@ -23,17 +24,58 @@
   # Take 2N first frows of the dist mat and calculate prob belonging
   dists <- mclapply(dists, function(x) x[1:(1+binSize*2)], mc.cores = nCores)
   
+  if(plot){
+    plot.df <- as.data.frame(dists)
+    reps <- paste0('rep', 1:10)
+    # sample 10 sets of random cells and color the adjacent cells the same color
+    plot.df <- matrix(ncol = 10, nrow = length(dists), dimnames = list(names(dists), paste0('rep', 1:10)))
+    for(i in 1:ncol(plot.df)){
+      cells <- sample(names(dists), length(dists)*0.1)
+      for(j in 1:length(cells)){
+        pairedCells <- dists[[grep(cells[j], names(dists))]][1:5]
+        plot.df[pairedCells,i] <- lookup$Code[grep(cells[j], lookup$CellBarcode)]
+      }
+    }
+    plot.df <- data.frame(plot.df, PCA.x = PCAEmbeddings[,1], PCA.y = PCAEmbeddings[,2])
+    pdf(paste0(plottingDir, 'ClusteredCellsDist.pdf'))
+    for(i in 1:length(reps)){
+      p <- ggplot(plot.df, aes_string(x='PCA.x', y='PCA.y', color = reps[i])) + geom_point(size = 0.5)
+      p <- p + labs(x = 'PC.1', y='PC.2', title = paste('Random 10% of Clusters |', reps[i]))
+      plot(p)
+    }
+    dev.off()
+  }
+  
   # Calculate probability matrix (AUB)/(AnB) (Joccard Index)
   # This is an extremely slow step, so validate if it is necessary
-  p.mat <- matrix(nrow = length(dists),
-                  ncol = length(dists),
-                  dimnames = list(names(dists), names(dists)))
-  
-  # For each point, calculate the Joccard Index for all other points
-  p.mat <- mclapply(dists, function(x) lapply(dists, function(y) sum(x%in%y)/length(unique(c(x,)))))
-  p.mat <- mclapply(p.mat, unlist)
+  p.mat <- mclapply(dists, function(x) lapply(dists, function(y) sum(x%in%y)/length(unique(c(x,y)))),
+                    mc.cores = nCores)
+  p.mat <- mclapply(p.mat, unlist, mc.cores = nCores)
   p.mat <- do.call(rbind, p.mat)
-
+  
+  # Get top bin probability and then bin cells via the most probable neighbors
+  nearestCells <- apply(p.mat, 2, function(x) rownames(p.mat)[order(x, decreasing = T)[1:binSize]])
+  if(plot){
+    plot.df <- as.data.frame(nearestCells)
+    reps <- paste0('rep', 1:10)
+    # sample 10 sets of random cells and color the adjacent cells the same color
+    plot.df <- matrix(ncol = 10, nrow = ncol(nearestCells), dimnames = list(colnames(nearestCells), paste0('rep', 1:10)))
+    for(i in 1:ncol(plot.df)){
+      cells <- sample(colnames(nearestCells), ncol(nearestCells)*0.1)
+      for(j in 1:length(cells)){
+        pairedCells <- nearestCells[,grep(cells[j], colnames(nearestCells))]
+        plot.df[pairedCells,i] <- lookup$Code[grep(cells[j], lookup$CellBarcode)]
+      }
+    }
+    plot.df <- data.frame(plot.df, PCA.x = PCAEmbeddings[,1], PCA.y = PCAEmbeddings[,2])
+    pdf(paste0(plottingDir, 'ClusteredCellsJoccardDist.pdf'))
+    for(i in 1:length(reps)){
+      p <- ggplot(plot.df, aes_string(x='PCA.x', y='PCA.y', color = reps[i])) + geom_point(size = 0.5)
+      p <- p + labs(x = 'PC.1', y='PC.2', title = paste('Random 10% of Clusters |', reps[i]))
+      plot(p)
+    }
+    dev.off()
+  }
   # This is a for loop implementation of the above - mcapply should be faster than the nested for loops
   #for(i in 1:length(dists)){
   #  col <- dists[[i]]

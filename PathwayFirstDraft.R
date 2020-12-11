@@ -19,7 +19,7 @@ dist.method <- 'euclidean' # Options: "euclidean", "maximum", "manhattan", "canb
 nIter <- 100000 #Number of iterations for the null pvalue distributions
 pThresh <- 0.05 #Pvalue threshold for enriched pathways
 numCores <- detectCores() # Num cores for my parallel hackery to solve my slow code
-plotChrOverlap <- F # If trying new pathways, validate chromosomal coverage with a plot
+plottingFlag <- F # If trying new pathways, validate chromosomal coverage with a plot
 
 # Load data and simulate InferCNV's preprocessing steps
 data <- readRDS('data/TxToCloud/data_all.RDS')
@@ -48,17 +48,18 @@ data.pca <- Embeddings(data, reduction='pca')
 # Calculate the probability of each point being the neighbor of another
 p.mat <- .CalculateDistance(PCAEmbeddings = data.pca,
                            nCores = numCores, 
-                           binSize = binSize)
+                           binSize = binSize,
+                           plot = plottingFlag)
 
 # Get top bin probability and then bin cells via the most probable neighbors
-nearestCells <- apply(p.mat, 2, function(x) rownames(p.mat)[order(x, decreasing = T)[1:binSize]])
+nearestCells <- apply(p.mat, 2, function(x) rownames(p.mat)[order(x, decreasing = F)[1:binSize]])
 binnedCells <- as.matrix(data@assays$RNA@data)
 for(i in 1:ncol(nearestCells)){
   binnedCells[,i] <- rowMeans(binnedCells[,nearestCells[,i]])
 }
 
 # Make chromosomal overlap plots to validate chr overlap
-if(plotChrOverlap){
+if(plottingFlag){
   .ChromosomeCoveragePlot(pathways)
 }
 
