@@ -179,6 +179,10 @@ sourceAll('CNVcaller/inferCNV_pkg_wo_ops')
 #' 
 #' @param pathways pathways to normalize against
 #' 
+#' @param minExprRatio minimum ratio that the pathway normalization will amplify
+#' 
+#' @param maxExprRatio maximum ratio that the pathway normalization will mute
+#' 
 #' #######################
 #' ## Experimental options
 #'
@@ -310,6 +314,8 @@ run_no_smoothing <- function(infercnv_obj,
                 validateClustering = F,
                 pcaLoadings = NULL,
                 pathways = NULL,
+                minExprRatio = 0.25,
+                maxExprRatio = 4,
 
                 ## experimental options
                 remove_genes_at_chr_ends=FALSE,
@@ -557,7 +563,9 @@ run_no_smoothing <- function(infercnv_obj,
                                            plottingFlag = diagnostics,
                                            validateClustering = validateClustering,
                                            pcaLoadings = pcaLoadings,
-                                           pathways = pathways)
+                                           pathways = pathways,
+                                           minExprRatio = minExprRatio,
+                                           maxExprRatio = maxExprRatio)
     }
   }
   ## #########################
@@ -1522,6 +1530,10 @@ run_no_smoothing <- function(infercnv_obj,
 #' 
 #' @param pathways # List of pathways to anlayze
 #'  
+#' @param minExprRatio # Floor below which pathway amplification will be unreasonably strong
+#'  
+#' @param maxExprRatio # Roof above which pathway muting will be unreasonably strong
+#' 
 #' @return infercnv_obj containing the reference subtracted values.
 #'
 #' @keywords internal
@@ -1535,9 +1547,11 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
                                  pThresh, # Padjested threshold for enriched pathways
                                  numCores, # number of cores to analyze with
                                  plottingFlag, # If we should make plots of not
-                                 validateClustering,
-                                 pcaLoadings,
-                                 pathways){ # Limit to only two PCs for interpretability of clustering 
+                                 validateClustering, # Limit to only two PCs for interpretability of clustering 
+                                 pcaLoadings, # PCA Transformed dataset
+                                 pathways, # Pathways to analyze against
+                                 minExprRatio = 0.25, # Floor and roof for amp/muting (0.25 and 4 are 4 fold amp/mute)
+                                 maxExprRatio = 4){
   
   if(Sys.info()[[1]]=='Windows'){
     numCores <- 1 # Windows handles parallelization differently than linux
@@ -1583,6 +1597,9 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   
   # Calculate the ratio of pathway expression/chromosome to overall chromosome expression
   perChrExp <- .AvgExpPerChromosome(pathways, data, GenePosition)
+  
+  perChrExp[perChrExp<minExprRatio] <- minExprRatio
+  perChrExp[perChrExp>maxExprRatio] <- maxExprRatio
   
   # Get ranking of each gene in each cell
   binnedCells.order <- apply(binnedCells, 2, function(x) rownames(binnedCells)[order(x, decreasing = T)])
@@ -1636,7 +1653,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   
   # normalize each chr expression for significant pathways
   for(i in 1:ncol(medPathwayRank)){
-    sigPathways <- rownames(medPathwayRank)[medPathwayRank[,i]<0.05]
+    sigPathways <- rownames(medPathwayRank)[medPathwayRank[,i]<pThresh]
     for(path in sigPathways){
       path.genes <- pathways[[path]]
       path.genes <- GenePosition[GenePosition$Gene%in%path.genes,]
@@ -1645,9 +1662,12 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
         reads.chr.path <- reads[rownames(reads)%in%chr.path.genes$Gene,i,drop = F]
         
         #Get the pathway expression ratio from the array and divide the binned counts by that expression
-        if(perChrExp[path,i,chr]<1){
-          normFactor <- 1
-        }else{
+        if(perChrExp[path,i,chr]<minExprRatio){
+          normFactor <- minExprRatio
+        }else if(perChrExp[path,i,chr]>maxExprRatio){
+          normFactor <- maxExprRatio
+        }
+        else{
           normFactor <- perChrExp[path, i, chr]
         }
         reads.chr.path <- reads.chr.path/normFactor

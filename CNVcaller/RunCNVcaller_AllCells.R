@@ -66,23 +66,28 @@ infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(dat
 #                                     pcaLoadings = pca.mat)
 
 # Make an output directory for this run
-CNVcallerOut <- paste0(outDir, 'CNVcaller_noChrNormNOTWORKING3_', date)
-dir.create(CNVcallerOut)
-
-# Auto detect the number of cpus
-# Otherwise it defaults to 4 and we only utilize 25% of our cloud server XD
-nCores <- parallel::detectCores()
-
-# Run infercnv
-#infercnv_obj <- refactored_run(infercnv_obj,
-infercnv_obj <- run_no_smoothing(infercnv_obj,
-                                cutoff = 0.1,
-                                out_dir = CNVcallerOut,
-                                cluster_by_groups = T,
-                                HMM = T,
-                                num_threads = nCores,
-                                denoise = F,
-                                resume_mode = F,
-                                plot_steps = T,
-                                pathways = pathways,
-                                pcaLoadings = pca.mat)
+pThreshs <- c(0.01, 0.05, 0.1, 0.5, 1)
+for(i in 1:length(pThreshs)){
+  CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNormalizationAddOn_pThresh', pThreshs[i],'_', date)
+  dir.create(CNVcallerOut)
+  
+  # Auto detect the number of cpus
+  # Otherwise it defaults to 4 and we only utilize 25% of our cloud server XD
+  nCores <- parallel::detectCores()
+  
+  # Run infercnv
+  #infercnv_obj <- refactored_run(infercnv_obj,
+  infercnv_obj <- run_no_smoothing(infercnv_obj,
+                                   cutoff = 0.1,
+                                   out_dir = CNVcallerOut,
+                                   cluster_by_groups = T,
+                                   HMM = T,
+                                   num_threads = nCores,
+                                   denoise = T,
+                                   pathways = pathways,
+                                   pcaLoadings = pca.mat,
+                                   minExprRatio = 0.1,
+                                   maxExprRatio = 10,
+                                   pThresh = pThreshs[i])
+  print(paste("Finished P Thresh:", pThreshs[i]))
+}
