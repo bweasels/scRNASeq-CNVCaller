@@ -1,4 +1,10 @@
 library(infercnv)
+library(Seurat)
+library(class)
+library(pheatmap)
+library(ggplot2)
+library(matrixStats)
+library(digest)
 
 #source('CNVcaller/runCNVcaller.R')
 source('CNVcaller/inferCNV_ops_trimmed.R')
@@ -29,6 +35,7 @@ for(j in 1:length(chrOrder)){
   geneLocs <- rbind(geneLocs, geneLocs.temp[geneLocs.temp$V2%in%chrOrder[j],])
 }
 geneLocs <- geneLocs[2:nrow(geneLocs),]
+colnames(geneLocs) <- c('Gene', 'Chromosome', 'Start', 'End')
 
 # Trimming dataset to genes available in GeneLocs (~500 genes different - all ribosomal variants)
 data <- data[rownames(data)[(rownames(data) %in% rownames(geneLocs))]]
@@ -41,10 +48,15 @@ ref_groups <- unique(sampleAnnotation$cellType)
 ref_groups <- ref_groups[!grepl('HCC', ref_groups)]
 
 # Make the infercnv object
-infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
-                                               gene_order_file = geneLocs,
-                                               annotations_file = sampleAnnotation,
-                                               ref_group_names = ref_groups)
+#infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
+#                                               gene_order_file = geneLocs,
+#                                               annotations_file = sampleAnnotation,
+#                                               ref_group_names = ref_groups)
+infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
+                                     gene_order_file = geneLocs,
+                                     annotations_file = sampleAnnotation,
+                                     ref_group_names = ref_groups)
+
 
 # Make an output directory for this run
 CNVcallerOut <- paste0(outDir, 'CNVcaller_allCells_', date)
@@ -62,4 +74,5 @@ infercnv_obj <- run_no_smoothing(infercnv_obj,
                                 cluster_by_groups = T,
                                 HMM = T,
                                 num_threads = nCores,
-                                denoise = T)
+                                denoise = T,
+                                resume_mode = F)

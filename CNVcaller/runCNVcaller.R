@@ -2,16 +2,16 @@ library('futile.logger')
 library(infercnv)
 
 # Load functions
-source('CNVcaller/inferCNV_ops_functions.R')
+source('CNVcaller/inferCNV_ops_trimmed.R')
 source('CNVcaller/inferCNV.R')
 
 refactored_run <- function(infercnv_obj,
                 
                 # gene filtering settings
-                cutoff=1,
+                #cutoff=1,
                 min_cells_per_gene=3,
                 
-                out_dir=NULL,
+                #out_dir=NULL,
                 
                 ## smoothing params
                 window_length=101,
@@ -21,7 +21,7 @@ refactored_run <- function(infercnv_obj,
                 ref_subtract_use_mean_bounds=TRUE,
                 
                 # observation cell clustering settings
-                cluster_by_groups=FALSE,
+                #cluster_by_groups=FALSE,
                 cluster_references=TRUE,
                 k_obs_groups=1,
                 
@@ -31,7 +31,7 @@ refactored_run <- function(infercnv_obj,
                 scale_data=FALSE,
                 
                 ## HMM opts
-                HMM=FALSE, # turn on to auto-run the HMM prediction of CNV levels
+                #HMM=FALSE, # turn on to auto-run the HMM prediction of CNV levels
                 ## tumor subclustering opts
                 HMM_transition_prob=1e-6,
                 HMM_report_by=c("subcluster","consensus","cell"),
@@ -54,7 +54,7 @@ refactored_run <- function(infercnv_obj,
                 
                 
                 ## noise settings
-                denoise=FALSE,
+                #denoise=FALSE,
                 noise_filter=NA,
                 sd_amplifier = 1.5,
                 noise_logistic=FALSE, # if false, does complete 'noise' elimination.
@@ -68,7 +68,7 @@ refactored_run <- function(infercnv_obj,
                 final_scale_limits = NULL,
                 final_center_val = NULL,
                 debug=FALSE, #for debug level logging
-                num_threads = 4,
+                #num_threads = 4,
                 plot_steps=FALSE,
                 resume_mode=TRUE,
                 png_res=300,
@@ -220,6 +220,10 @@ refactored_run <- function(infercnv_obj,
   # 3
   step_normalize_by_seq_depth(step_count,HMM,HMM_type,sim_method,hspike_aggregate_normals,reload_info)
   reaching_step(up_to_step, step_count)
+  
+  #our step
+  step_normalize_by_pathway()
+  return()
   # 4
   step_log_transform(step_count,skip_past,reload_info,plot_steps,k_obs_groups,cluster_by_groups,
                      cluster_references,out_dir,output_format,png_res,useRaster)

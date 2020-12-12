@@ -163,6 +163,19 @@ sourceAll('CNVcaller/inferCNV_pkg_wo_ops')
 #' @param diagnostics option to create diagnostic plots after running the Bayesian model (default: FALSE)
 #'
 #' #######################
+#' ## Options for the pathway normalization
+#' 
+#' @param binSize Number of nearest neighbors to bin by
+#' 
+#' @param dist.method how to measure distance using dist function
+#' 
+#' @param nIter number of iterations to use when generating the null distribution
+#' 
+#' @param pThresh p.adj threshold to flag over expressed pathways
+#' 
+#' @param validateClustering boolean to determind if we want interpretable clustering plots to affirm that joccard/pc distance works
+#'
+#' #######################
 #' ## Experimental options
 #'
 #' @param remove_genes_at_chr_ends experimental option: If true, removes the window_length/2 genes at both ends of the chromosome.
@@ -285,6 +298,13 @@ run_no_smoothing <- function(infercnv_obj,
                 save_final_rds = TRUE,
                 diagnostics = FALSE,
                 
+                # Options for the pathway normalization
+                binSize = 5, 
+                dist.method = 'euclidean',
+                nIter = 100000,
+                pThresh = 0.05,
+                validateClustering = F,
+
                 ## experimental options
                 remove_genes_at_chr_ends=FALSE,
                 prune_outliers=FALSE,
@@ -491,7 +511,24 @@ run_no_smoothing <- function(infercnv_obj,
     }
   }
   
+  ## #########################
+  ## Step: pathway normalization
   
+  # if the pathway flag is set in infercnvObj
+  if(infercnv_obj@options$run_pathway_norm){
+    flog.info(sprintf("\n\n\tSTEP %02d a: pathway normalization\n", step_count))
+    
+    if (skip_past < step_count) {
+      infercnv_obj <- normalize_by_pathway(infercnv_obj,
+                                           numNeighbors = binSize,
+                                           dist.method = dist.method,
+                                           numIter = nIter,
+                                           pThresh = pThresh,
+                                           numCores = num_threads,
+                                           plottingFlag = diagnostics,
+                                           validateClustering = validateClustering)
+    }
+  }
   ## #########################
   ## Step: log transformation
   
@@ -1422,7 +1459,34 @@ run_no_smoothing <- function(infercnv_obj,
   return(infercnv_obj)
   
 }
+###############################OUR PATHWAY NORMALIZATION METHOD################################
+#' Normalizing each cell by their detected upregulated pathways
+#'
+#' @title normalize_by_pathway()
+#'
+#' @description This is a replacement/add on to cnv calling performance which tries to use pathway enrichment
+#' to help normalize chromosomal expression instead of just chromosomal level smoothing. 
+#' Step 1: bin cells into groups of 5 using PCA distance and Joccard distance
+#' Step 2: Confirm that the given pathways have sufficient coverage over all chromosomes 
+#' Step 3: Generate null pathway enrichment scores for pvalue calculation
+#' Step 4: Normalize expression per chromosome by pathway fold over expression
+#'
+#' @param infercnv_obj infercnv_object
+#'
+#' @param pathways list of pathways to analyze
+#'
+#' @param pcaLoadings nPCs x cells matrix of the PCA transformed data
+#'  
+#' @return infercnv_obj containing the reference subtracted values.
+#'
+#' @keywords internal
+#' @noRd
+#'
 
+normalize_by_pathway <- function(infercnv_obj, pathways, pcaLoadings){
+  print('nothing doing')
+  return()
+}
 
 #' Subtracting the mean of the reference expr distributions from the observed cells.
 #'

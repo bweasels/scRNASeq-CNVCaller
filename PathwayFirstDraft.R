@@ -23,7 +23,7 @@ if(Sys.info()[[1]]=='Windows'){
 } else {
   numCores <- detectCores() 
 }
-plottingFlag <- T # If trying new pathways, validate chromosomal coverage with a plot
+diagnostics <- T # If trying new pathways, validate chromosomal coverage with a plot
 validateClustering <- F # Validate the performance of distance vs Joccard index measurements of clustering - WILL ONLY USE PC1 & PC2z
 
 if(validateClustering){
@@ -58,7 +58,7 @@ data.pca <- Embeddings(data, reduction='pca')
 p.mat <- .CalculateDistance(PCAEmbeddings = data.pca,
                            nCores = numCores, 
                            binSize = binSize,
-                           plot = plottingFlag,
+                           plot = diagnostics,
                            valClust = validateClustering)
 
 # Get top bin probability and then bin cells via the most probable neighbors
@@ -69,7 +69,7 @@ for(i in 1:ncol(nearestCells)){
 }
 
 # Make chromosomal overlap plots to validate chr overlap
-if(plottingFlag){
+if(diagnostics){
   .ChromosomeCoveragePlot(pathways)
 }
 

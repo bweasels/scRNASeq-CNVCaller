@@ -31,6 +31,12 @@
 #'
 #' @slot .hspike a hidden infercnv object populated with simulated spiked-in data
 #' 
+#' @slot norm_pathways pathways to normalize against
+#' 
+#' @slot pca_loadings pca loadings to cluster cells against
+#' 
+#' @slot gene_locs chromosomal locations for each gene
+#' 
 #' @export
 #'
 
@@ -44,7 +50,10 @@ infercnv <- methods::setClass(
                              observation_grouped_cell_indices = "list",
                              tumor_subclusters  = "ANY",
                              options = "list",
-                             .hspike = "ANY") )
+                             .hspike = "ANY",
+                             norm_pathways="ANY",
+                             pca_loadings="ANY",
+                             gene_locs="ANY") )
 
 
 
@@ -69,6 +78,10 @@ infercnv <- methods::setClass(
 #'
 #' @param chr_exclude list of chromosomes in the reference genome annotations that should be excluded from analysis.  Default = c('chrX', 'chrY', 'chrM')
 #'
+#' @param pathways list of pathways to perform pathway normalization against
+#' 
+#' @param pcaLoadings list of pcaLoadings of the original dataset for pathway normalization  
+#' 
 #' @description Creation of an infercnv object. This requires the following inputs:
 #' A more detailed description of each input is provided below:
 #'
@@ -137,8 +150,10 @@ CreateInfercnvObject <- function(raw_counts_matrix,
                                  delim="\t",
                                  max_cells_per_group=NULL,
                                  min_max_counts_per_cell=c(100, +Inf), # can be c(low,high) for colsums
-                                 chr_exclude=c('chrX', 'chrY', 'chrM') ) {
-    
+                                 chr_exclude=c('chrX', 'chrY', 'chrM'),
+                                 pathways=NULL,
+                                 pcaLoadings=NULL) {
+
     ## input expression data
     if (Reduce("|", is(raw_counts_matrix) == "character")) {
         flog.info(sprintf("Parsing matrix: %s", raw_counts_matrix)) 
@@ -224,6 +239,7 @@ CreateInfercnvObject <- function(raw_counts_matrix,
     
     raw.data <- order_ret$expr
     input_gene_order <- order_ret$order
+    colnames(input_gene_order) <- c('Chromosome', 'Start', 'End')
     
     if(is.null(raw.data)) {
         error_message <- paste("None of the genes in the expression data",
@@ -309,7 +325,31 @@ CreateInfercnvObject <- function(raw_counts_matrix,
         cell_indices = which(input_classifications[,1] == name_group)
         obs_group_cell_indices[[ name_group ]] <- cell_indices
     }
-    
+    #Validate my pathway options
+    if(!is.null(c(pathways, pcaLoadings))){
+        run_pathway_norm <- T
+        if(any(sapply(list(pathways, pcaLoadings), is.null))){
+            stop("Error, to use pathway normalization need to provide pathways and PCA Loadings")
+        }
+        
+        ## Validate Pathways
+        if(typeof(pathways)!='list'){
+            stop(sprintf("Error, 'pathways' is %s instead of list", typeof(pathways)))
+        }
+        if(any(sapply(pathways, typeof) != 'character')){
+            stop(sprintf("Error, 'pathways' object is not composed of character vectors"))
+        }
+        
+        ## Validate PCA Dims
+        if(ncol(pcaLoadings)!=ncol(raw_counts_matrix)){
+            stop(paste("Error, pcaLoadings need to have the same number of,
+                       columns as the data\n ncol PCALoadings:", ncol(PCALoadings), 
+                       '| ncol raw counts:', ncol(raw_counts_matrix)))
+        }
+        
+    }else{
+        run_pathway_norm <- F
+    }
     object <- new(
         Class = "infercnv",
         expr.data = raw.data, 
@@ -321,9 +361,11 @@ CreateInfercnvObject <- function(raw_counts_matrix,
         options = list("chr_exclude" = chr_exclude,
                        "max_cells_per_group" = max_cells_per_group,
                        "min_max_counts_per_cell" = min_max_counts_per_cell,
-                       "counts_md5" = digest(raw.data)),
-        .hspike = NULL)
-
+                       "counts_md5" = digest(raw.data),
+                       'run_pathway_norm' = run_pathway_norm),
+        .hspike = NULL,
+        norm_pathways=pathways,
+        pca_loadings=pcaLoadings)
     validate_infercnv_obj(object)
     
     return(object)
