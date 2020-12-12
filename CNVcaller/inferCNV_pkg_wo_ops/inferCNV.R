@@ -341,9 +341,8 @@ CreateInfercnvObject <- function(raw_counts_matrix,
         }
         
         ## Validate PCA Dims
-        if(ncol(pcaLoadings)!=ncol(raw_counts_matrix)){
-            stop(paste("Error, pcaLoadings need to have the same number of,
-                       columns as the data\n ncol PCALoadings:", ncol(PCALoadings), 
+        if(nrow(pcaLoadings)!=ncol(raw_counts_matrix)){
+            stop(paste("Error, nrow(pcaLoadings) must equal ncol(data)\n ncol PCALoadings:", nrow(pcaLoadings), 
                        '| ncol raw counts:', ncol(raw_counts_matrix)))
         }
         

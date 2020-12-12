@@ -35,7 +35,7 @@ for(j in 1:length(chrOrder)){
   geneLocs <- rbind(geneLocs, geneLocs.temp[geneLocs.temp$V2%in%chrOrder[j],])
 }
 geneLocs <- geneLocs[2:nrow(geneLocs),]
-colnames(geneLocs) <- c('Gene', 'Chromosome', 'Start', 'End')
+colnames(geneLocs) <- c('Chromosome', 'Start', 'End')
 
 # Trimming dataset to genes available in GeneLocs (~500 genes different - all ribosomal variants)
 data <- data[rownames(data)[(rownames(data) %in% rownames(geneLocs))]]
@@ -47,19 +47,31 @@ sampleAnnotation <- data.frame(row.names = rownames(sampleAnnotation),
 ref_groups <- unique(sampleAnnotation$cellType)
 ref_groups <- ref_groups[!grepl('HCC', ref_groups)]
 
+# load HallmarkGenes and stick in a list
+pathways <- GSA::GSA.read.gmt('h.all.v7.2.symbols.gmt')
+names <- pathways[[2]]
+pathways <- pathways[[1]]
+names(pathways) <- names
+
+# Extract the pca loadings from the seurat object
+pca.mat <- data@reductions$pca@cell.embeddings
+
+
 # Make the infercnv object
-#infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
-#                                               gene_order_file = geneLocs,
-#                                               annotations_file = sampleAnnotation,
-#                                               ref_group_names = ref_groups)
+infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
+                                     gene_order_file = geneLocs,
+                                     annotations_file = sampleAnnotation,
+                                     ref_group_names = ref_groups,
+                                     pathways = pathways, 
+                                     pcaLoadings = pca.mat)
+
 infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
                                      gene_order_file = geneLocs,
                                      annotations_file = sampleAnnotation,
                                      ref_group_names = ref_groups)
 
-
 # Make an output directory for this run
-CNVcallerOut <- paste0(outDir, 'CNVcaller_allCells_', date)
+CNVcallerOut <- paste0(outDir, 'CNVcaller_noChrNorm_', date)
 dir.create(CNVcallerOut)
 
 # Auto detect the number of cpus
