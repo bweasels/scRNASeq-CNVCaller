@@ -175,6 +175,10 @@ sourceAll('CNVcaller/inferCNV_pkg_wo_ops')
 #' 
 #' @param validateClustering boolean to determind if we want interpretable clustering plots to affirm that joccard/pc distance works
 #'
+#' @param pcaLoadings representation of the data in PCA space
+#' 
+#' @param pathways pathways to normalize against
+#' 
 #' #######################
 #' ## Experimental options
 #'
@@ -304,6 +308,8 @@ run_no_smoothing <- function(infercnv_obj,
                 nIter = 100000,
                 pThresh = 0.05,
                 validateClustering = F,
+                pcaLoadings = NULL,
+                pathways = NULL,
 
                 ## experimental options
                 remove_genes_at_chr_ends=FALSE,
@@ -325,7 +331,30 @@ run_no_smoothing <- function(infercnv_obj,
                 up_to_step=100
                 
 ) {
-  
+  #Validate my pathway options
+  if(!is.null(c(pathways, pcaLoadings))){
+    run_pathway_norm <- T
+    if(any(sapply(list(pathways, pcaLoadings), is.null))){
+      stop("Error, to use pathway normalization need to provide pathways and PCA Loadings")
+    }
+    
+    ## Validate Pathways
+    if(typeof(pathways)!='list'){
+      stop(sprintf("Error, 'pathways' is %s instead of list", typeof(pathways)))
+    }
+    if(any(sapply(pathways, typeof) != 'character')){
+      stop(sprintf("Error, 'pathways' object is not composed of character vectors"))
+    }
+    
+    ## Validate PCA Dims
+    if(nrow(pcaLoadings)!=ncol(infercnv_obj@expr.data)){
+      stop(paste("Error, nrow(pcaLoadings) must equal ncol(data)\n ncol PCALoadings:", nrow(pcaLoadings), 
+                 '| ncol raw counts:', ncol(infercnv_obj@expr.data)))
+    }
+    
+  }else{
+    run_pathway_norm <- F
+  }
   
   smooth_method = match.arg(smooth_method)
   HMM_type = match.arg(HMM_type)
@@ -515,7 +544,7 @@ run_no_smoothing <- function(infercnv_obj,
   ## Step: pathway normalization
   
   # if the pathway flag is set in infercnvObj
-  if(infercnv_obj@options$run_pathway_norm){
+  if(run_pathway_norm){
     flog.info(sprintf("\n\n\tSTEP %02d a: pathway normalization\n", step_count))
 
     if (skip_past < step_count) {
@@ -526,7 +555,9 @@ run_no_smoothing <- function(infercnv_obj,
                                            pThresh = pThresh,
                                            numCores = num_threads,
                                            plottingFlag = diagnostics,
-                                           validateClustering = validateClustering)
+                                           validateClustering = validateClustering,
+                                           pcaLoadings = pcaLoadings,
+                                           pathways = pathways)
     }
   }
   ## #########################
@@ -1486,6 +1517,10 @@ run_no_smoothing <- function(infercnv_obj,
 #' @param plottingFlag # If we should make plots of not
 #' 
 #' @param validateClustering # Limit to only two PCs for interpretability of clustering 
+#' 
+#' @param pcaLoadings # representation of the data in PC
+#' 
+#' @param pathways # List of pathways to anlayze
 #'  
 #' @return infercnv_obj containing the reference subtracted values.
 #'
@@ -1500,7 +1535,9 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
                                  pThresh, # Padjested threshold for enriched pathways
                                  numCores, # number of cores to analyze with
                                  plottingFlag, # If we should make plots of not
-                                 validateClustering){ # Limit to only two PCs for interpretability of clustering 
+                                 validateClustering,
+                                 pcaLoadings,
+                                 pathways){ # Limit to only two PCs for interpretability of clustering 
   
   if(Sys.info()[[1]]=='Windows'){
     numCores <- 1 # Windows handles parallelization differently than linux
@@ -1513,10 +1550,9 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   
   # Extract the necessary information from the inferCNV object
   data <- infercnv_obj@expr.data[,unlist(infercnv_obj@observation_grouped_cell_indices)]
-  pathways <- infercnv_obj@norm_pathways
   
   # Trim the pca data to the cells in the actual data
-  data.pca <- infercnv_obj@pca_loadings[colnames(data),]
+  data.pca <- pcaLoadings[colnames(data),]
   
   # Gene_order has rownames for genes, but I want them to be in their own column so quickly do that
   GenePosition <- infercnv_obj@gene_order

@@ -3,7 +3,7 @@ library(Seurat)
 library(class)
 library(pheatmap)
 library(ggplot2)
-#library(matrixStats)
+library(matrixStats)
 library(digest)
 
 #source('CNVcaller/runCNVcaller.R')
@@ -58,12 +58,12 @@ pca.mat <- data@reductions$pca@cell.embeddings
 
 
 # Make the infercnv object
-infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
-                                     gene_order_file = geneLocs,
-                                     annotations_file = sampleAnnotation,
-                                     ref_group_names = ref_groups,
-                                     pathways = pathways, 
-                                     pcaLoadings = pca.mat)
+infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
+                                               gene_order_file = geneLocs,
+                                               annotations_file = sampleAnnotation,
+                                               ref_group_names = ref_groups)#,
+#                                     pathways = pathways, 
+#                                     pcaLoadings = pca.mat)
 
 # Make an output directory for this run
 CNVcallerOut <- paste0(outDir, 'CNVcaller_noChrNormNOTWORKING3_', date)
@@ -83,4 +83,6 @@ infercnv_obj <- run_no_smoothing(infercnv_obj,
                                 num_threads = nCores,
                                 denoise = F,
                                 resume_mode = F,
-                                plot_steps = T)
+                                plot_steps = T,
+                                pathways = pathways,
+                                pcaLoadings = pca.mat)
