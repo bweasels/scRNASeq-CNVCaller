@@ -18,7 +18,7 @@ plottingDir <- dirs[[3]]
 date <- Sys.Date()
 
 # Load data, and the start stop locations of each transcript
-data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
+data <- readRDS(paste0(outDir, 'data_all.RDS'))
 geneLocs.temp <- read.table(paste0(outDir, 'GeneLocs.txt'),
                             sep = '\t',
                             row.names = 1)
@@ -58,16 +58,18 @@ pca.mat <- data@reductions$pca@cell.embeddings
 
 
 # Make the infercnv object
-infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
-                                               gene_order_file = geneLocs,
-                                               annotations_file = sampleAnnotation,
-                                               ref_group_names = ref_groups)#,
+
 #                                     pathways = pathways, 
 #                                     pcaLoadings = pca.mat)
 
 # Make an output directory for this run
 pThreshs <- c(0.01, 0.05, 0.1, 0.5, 1)
-for(i in 1:length(pThreshs)){
+for(i in 2:length(pThreshs)){
+  infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
+                                                 gene_order_file = geneLocs,
+                                                 annotations_file = sampleAnnotation,
+                                                 ref_group_names = ref_groups)
+  
   CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNormalizationAddOn_pThresh', pThreshs[i],'_', date)
   dir.create(CNVcallerOut)
   
