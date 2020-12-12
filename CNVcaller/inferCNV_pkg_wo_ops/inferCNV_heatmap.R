@@ -2163,6 +2163,7 @@ heatmap.cnv <-
             if (is.null(cexAt)) {
                 cexAt = seq_along(labCol)
             }
+          ##
             axis(sideCol,cexAt,labels=labCol,las=2,line=-0.5,tick=0,cex.axis=cexCol,outer=outer)
         } else {
             if (sideCol==1){
