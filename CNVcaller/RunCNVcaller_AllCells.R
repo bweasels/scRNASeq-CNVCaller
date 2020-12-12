@@ -1,7 +1,6 @@
 library(infercnv)
 library(Seurat)
 library(class)
-library(pheatmap)
 library(ggplot2)
 library(matrixStats)
 library(digest)
