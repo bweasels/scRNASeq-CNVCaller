@@ -1536,10 +1536,13 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   for(i in 1:ncol(nearestCells)){
     binnedCells[,i] <- rowMeans(binnedCells[,nearestCells[,i]])
   }
+  flog.info('Calculated Neighbors and Binned Cells')
+  
   
   # Make chromosomal overlap plots to validate chr overlap
   if(plottingFlag){
     .ChromosomeCoveragePlot(pathways, GenePosition)
+    flog.info("Plotted chromosomal coverage of pathway genes")
   }
   
   # Calculate the ratio of pathway expression/chromosome to overall chromosome expression
@@ -1559,6 +1562,8 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
                                    nIter = numIter,
                                    nGenes = nGenes,
                                    numCores = numCores)
+  
+  flog.info("Generated Null Distributions for pathway enrichment")
   
   # Calculate Mean and SD for each of the nGenes null Distribution
   rand.stats <- data.frame(apply(randomControls, 2, function(x) c(mean(x), sd(x))))
@@ -1589,6 +1594,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   # Correct for multiple hypothesis testing for each pathway (multiply by the number of cells)
   medPathwayRank <- medPathwayRank*ncol(medPathwayRank)
   
+  flog.info("Determined Enriched Pathways in each cell")
   # get the expression matrix for normalizing
   reads <- data
   
@@ -1603,14 +1609,22 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
         reads.chr.path <- reads[rownames(reads)%in%chr.path.genes$Gene,i,drop = F]
         
         #Get the pathway expression ratio from the array and divide the binned counts by that expression
-        reads.chr.path <- reads.chr.path/perChrExp[path,i,chr]
+        if(perChrExp[path,i,chr]<1){
+          normFactor <- 1
+        }else{
+          normFactor <- perChrExp[path, i, chr]
+        }
+        reads.chr.path <- reads.chr.path/normFactor
         
         #Save the altered reads
         reads[rownames(reads)%in%chr.path.genes$Gene, i] <- reads.chr.path
       }
     }
   }
+  flog.info("Normalized Cell Expression by significant pathway overexpression")
   infercnv_obj@expr.data[,unlist(infercnv_obj@observation_grouped_cell_indices)] <- reads
+  saveRDS(infercnv_obj, 'Debug_InferCNVObj.RDS')
+  saveRDS(perChrExp, 'MoreDebug.RDS')
   return(infercnv_obj)
 }
 

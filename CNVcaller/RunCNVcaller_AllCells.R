@@ -3,7 +3,7 @@ library(Seurat)
 library(class)
 library(pheatmap)
 library(ggplot2)
-library(matrixStats)
+#library(matrixStats)
 library(digest)
 
 #source('CNVcaller/runCNVcaller.R')
@@ -65,13 +65,8 @@ infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$R
                                      pathways = pathways, 
                                      pcaLoadings = pca.mat)
 
-infercnv_obj <- CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
-                                     gene_order_file = geneLocs,
-                                     annotations_file = sampleAnnotation,
-                                     ref_group_names = ref_groups)
-
 # Make an output directory for this run
-CNVcallerOut <- paste0(outDir, 'CNVcaller_noChrNorm_', date)
+CNVcallerOut <- paste0(outDir, 'CNVcaller_noChrNormNOTWORKING3_', date)
 dir.create(CNVcallerOut)
 
 # Auto detect the number of cpus
@@ -86,5 +81,6 @@ infercnv_obj <- run_no_smoothing(infercnv_obj,
                                 cluster_by_groups = T,
                                 HMM = T,
                                 num_threads = nCores,
-                                denoise = T,
-                                resume_mode = F)
+                                denoise = F,
+                                resume_mode = F,
+                                plot_steps = T)

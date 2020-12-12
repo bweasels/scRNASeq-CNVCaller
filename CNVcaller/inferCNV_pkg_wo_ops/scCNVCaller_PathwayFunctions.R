@@ -150,7 +150,7 @@ NULL
         pathwayLocs <- rbind(pathwayLocs, chunk)
       }
     }
-    print(paste0('Finished Pathway: ', names(pathways)[i]))
+    #print(paste0('Finished Pathway: ', names(pathways)[i]))
   }
   
   # Make an overlap plot for each chromosome
@@ -216,7 +216,7 @@ NULL
         perChrExp[j,,i] <- ratio
       }
     }
-    print(paste('Finished chromosome: ', dimnames(perChrExp)[[3]][i]))
+    #print(paste('Finished chromosome: ', dimnames(perChrExp)[[3]][i]))
   }
   return(perChrExp)
 }
