@@ -89,6 +89,6 @@ infercnv_obj <- run_no_smoothing(infercnv_obj,
                                  minExprRatio = minRat,
                                  maxExprRatio = maxRat,
                                  pThresh = pThresh,
-                                 diagnostics = T,
+                                 diagnostics = F,
                                  resume_mode = F)
 print(paste("Finished P Thresh:", pThresh))
