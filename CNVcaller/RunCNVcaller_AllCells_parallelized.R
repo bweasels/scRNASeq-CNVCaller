@@ -63,8 +63,8 @@ pca.mat <- data@reductions$pca@cell.embeddings
 #                                     pcaLoadings = pca.mat)
 
 # Make an output directory for this run
-pThreshs <- c(0.01, 0.05, 0.1, 0.5, 1)
-dynRange <- c(5, 10, 50, 100, 500, 1000)
+pThreshs <- c(0.05, 0.1, 0.5, 1, 5, 10, 50, 100)
+dynRange <- 1000
 settings <- expand.grid(pThreshs,dynRange)
 settings <- as.list(as.data.frame(t(settings)))
 
@@ -72,42 +72,27 @@ testPathwayNorm <- function(settings){
   nCores <- 1
   pThresh <- settings[1]
   dynRange <- settings[2]
-  minRat <- 1/(dynRange[j]/2)
-  maxRat <- dynRange[j]/2
+  minRat <- 1/sqrt(dynRange)
+  maxRat <- sqrt(dynRange)
   
   infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
                                                  gene_order_file = geneLocs,
                                                  annotations_file = sampleAnnotation,
                                                  ref_group_names = ref_groups)
   
-  CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNormSum_pThresh', pThresh,'_dynRange',dynRange, '_', date)
+  CNVcallerOut <- paste0(outDir, '/finalRun/CNVcaller_pathwayNormSum_pThresh', pThresh,'_dynRange',dynRange, '_', date)
   dir.create(CNVcallerOut)
   
   # Auto detect the number of cpus
   # Otherwise it defaults to 4 and we only utilize 25% of our cloud server XD
   nCores <- parallel::detectCores()
   
-  # Run infercnv
-  #infercnv_obj <- refactored_run(infercnv_obj,
   infercnv_obj <- run_no_smoothing(infercnv_obj,
                                    cutoff = 0.1,
                                    out_dir = CNVcallerOut,
                                    cluster_by_groups = T,
                                    HMM = T,
-                                   num_threads = 1,
-                                   denoise = T,
-                                   pathways = pathways,
-                                   pcaLoadings = pca.mat,
-                                   minExprRatio = minRat,
-                                   maxExprRatio = maxRat,
-                                   pThresh = pThresh)
-  
-  infercnv_obj <- run_no_smoothing(infercnv_obj,
-                                   cutoff = 0.1,
-                                   out_dir = CNVcallerOut,
-                                   cluster_by_groups = T,
-                                   HMM = T,
-                                   num_threads = 1,
+                                   num_threads = 2,
                                    denoise = F,
                                    pathways = pathways,
                                    pcaLoadings = pca.mat,
