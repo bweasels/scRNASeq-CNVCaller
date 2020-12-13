@@ -22,7 +22,7 @@ setDirectory <- function(){
     
     # Turns out adding storage adds an external disk, so I had to mount it and move everything there
     # I think we both should have permissions to mess with it so I'll set it as the default
-    }else if(info['release']=='4.19.0-12-cloud-amd64'){
+    }else if(info['release']=='4.19.0-13-cloud-amd64'){
     setwd('/mnt/disks/ext/scRNASeq-CNVCaller')
     outDir <- '/mnt/disks/ext/scRNASeq-CNVCaller/output/'
     dataDir <- '/mnt/disks/ext/scRNASeq-CNVCaller/data/'
