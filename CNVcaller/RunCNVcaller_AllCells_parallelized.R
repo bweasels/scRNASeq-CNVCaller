@@ -93,7 +93,7 @@ testPathwayNorm <- function(settings){
                                    out_dir = CNVcallerOut,
                                    cluster_by_groups = T,
                                    HMM = T,
-                                   num_threads = nCores,
+                                   num_threads = 1,
                                    denoise = T,
                                    pathways = pathways,
                                    pcaLoadings = pca.mat,
