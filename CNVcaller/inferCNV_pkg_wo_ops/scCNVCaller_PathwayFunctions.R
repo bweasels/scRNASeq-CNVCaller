@@ -63,7 +63,7 @@ NULL
       }
     }
     plot.df <- data.frame(plot.df, PCA.x = PCAEmbeddings[,1], PCA.y = PCAEmbeddings[,2])
-    pdf(paste0(plottingDir, 'ClusteredCellsDist.pdf'))
+    pdf(paste0(plottingDir, '/ClusteredCellsDist.pdf'))
     for(i in 1:length(reps)){
       p <- ggplot(plot.df, aes_string(x='PCA.x', y='PCA.y', color = reps[i])) + geom_point(size = 0.5)
       p <- p + labs(x = 'PC.1', y='PC.2', title = paste('Random 10% of Clusters |', reps[i]))
@@ -94,7 +94,7 @@ NULL
       }
     }
     plot.df <- data.frame(plot.df, PCA.x = PCAEmbeddings[,1], PCA.y = PCAEmbeddings[,2])
-    pdf(paste0(plottingDir, 'ClusteredCellsJoccardDist.pdf'))
+    pdf(paste0(plottingDir, '/ClusteredCellsJoccardDist.pdf'))
     for(i in 1:length(reps)){
       p <- ggplot(plot.df, aes_string(x='PCA.x', y='PCA.y', color = reps[i])) + geom_point(size = 0.5)
       p <- p + labs(x = 'PC.1', y='PC.2', title = paste('Random 10% of Clusters |', reps[i]))
@@ -162,7 +162,7 @@ NULL
   chromosomes <- paste0('chr', 1:22)
   
   options(scipen = 8)
-  pdf(paste0(plottingDir, 'ChromosomalCoveragePerPathway.pdf'), width = 21, height = 10)
+  pdf(paste0(plottingDir, '/ChromosomalCoveragePerPathway.pdf'), width = 21, height = 10)
   for(chr in chromosomes){
     p <- ggplot(pathwayLocs[pathwayLocs$chromosome==chr,], aes(x = loci, y = pathway)) + geom_point(size = 0.8)
     p <- p + labs(x = "Position", title = chr)

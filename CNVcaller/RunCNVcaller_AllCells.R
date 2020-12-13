@@ -58,10 +58,10 @@ pca.mat <- data@reductions$pca@cell.embeddings
 
 # Make an output directory for this run
 pThresh <- 0.1
-dynRange <- 100
+dynRange <- 1000
 
-minRat <- 1/(dynRange[j]/2)
-maxRat <- dynRange[j]/2
+minRat <- 1/sqrt(dynRange)
+maxRat <- sqrt(dynRange)
 
 infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
                                                gene_order_file = geneLocs,
@@ -83,7 +83,7 @@ infercnv_obj <- run_no_smoothing(infercnv_obj,
                                  cluster_by_groups = T,
                                  HMM = T,
                                  num_threads = nCores,
-                                 denoise = T,
+                                 denoise = F,
                                  pathways = pathways,
                                  pcaLoadings = pca.mat,
                                  minExprRatio = minRat,

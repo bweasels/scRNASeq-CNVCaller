@@ -1659,16 +1659,15 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   numPathways <- c()
 
   # normalize each chr expression for significant pathways
-  saveRDS(medPathwayRank, file = 'MedPathwayRankDiag.RDS')
-  saveRDS(perChrExp, file = 'PerChrExpDiag.RDS')
-  saveRDS(GenePosition, file = 'GenePosition.RDS')
-  saveRDS(reads, file = 'reads.RDS')
-  saveRDS(pathways, file = 'pathways.RDS')
   for(i in 1:ncol(medPathwayRank)){
+    
+    # Get the pathways for each cell that passes the p.adj threshold
     sigPathways <- rownames(medPathwayRank)[medPathwayRank[,i]<pThresh]
     numPathways <- c(numPathways, length(sigPathways))
     if(length(sigPathways)>0){
       for(path in sigPathways){
+        
+        # Get the genes, start, stop and chr for the slected pathway
         path.genes <- pathways[[path]]
         path.genes <- GenePosition[GenePosition$Gene%in%path.genes,]
         for(chr in unique(path.genes$chr)){
@@ -1676,7 +1675,6 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
           reads.chr.path <- reads[rownames(reads)%in%chr.path.genes$Gene,i,drop = F]
           
           #Get the pathway expression ratio from the array and divide the binned counts by that expression
-          print(paste("Working on:", path, i, chr))
           if(perChrExp[path,i,chr]<minExprRatio){
             normFactor <- minExprRatio
           }else if(perChrExp[path,i,chr]>maxExprRatio){
@@ -1695,10 +1693,9 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   }
   
   if(plottingFlag){
-    pdf(paste0(plottingDir, "PathwayEnrichmentStatistics.pdf"))
+    pdf(paste0(plottingDir, "/PathwayEnrichmentStatistics.pdf"))
     hist(medPathwayRank, main = "Distribution of all P Values")
     hist(numPathways, main = "Number of Pathways overexpressed ")
-    print(sigFoldChange)
     hist(sigFoldChange, main = "Distribution of the fold change applied to the cells")
     dev.off()
   }
