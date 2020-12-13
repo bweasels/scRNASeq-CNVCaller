@@ -4,6 +4,7 @@ library(class)
 library(ggplot2)
 library(matrixStats)
 library(digest)
+library(parallel)
 
 #source('CNVcaller/runCNVcaller.R')
 source('CNVcaller/inferCNV_ops_trimmed.R')
