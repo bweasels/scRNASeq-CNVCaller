@@ -101,6 +101,21 @@ testPathwayNorm <- function(settings){
                                    minExprRatio = minRat,
                                    maxExprRatio = maxRat,
                                    pThresh = pThresh)
+  
+  infercnv_obj <- run_no_smoothing(infercnv_obj,
+                                   cutoff = 0.1,
+                                   out_dir = CNVcallerOut,
+                                   cluster_by_groups = T,
+                                   HMM = T,
+                                   num_threads = 1,
+                                   denoise = F,
+                                   pathways = pathways,
+                                   pcaLoadings = pca.mat,
+                                   minExprRatio = minRat,
+                                   maxExprRatio = maxRat,
+                                   pThresh = pThresh,
+                                   diagnostics = F,
+                                   resume_mode = F)
   print(paste("Finished P Thresh:", pThresh))
 }
 
