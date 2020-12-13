@@ -194,17 +194,17 @@ NULL
   # Create list of genes in each chromosome
   perChrExp <- array(0, dim = c(length(pathways),
                                  ncol(data),
-                                 length(unique(GenePosition$Chromosome))),
+                                 length(unique(GenePosition$chr))),
                      dimnames = list(names(pathways),
                                      colnames(data),
-                                     unique(GenePosition$Chromosome)))
+                                     unique(GenePosition$chr)))
   
   # populate each element in the list with the ratio of the pathway expression within chromosome to chromosomal average
   for(i in 1:dim(perChrExp)[3]){
     
     # Get the genes in each chromosome
     chrName <- dimnames(perChrExp)[[3]][i]
-    genes <- GenePosition$Gene[GenePosition$Chromosome==chrName]
+    genes <- GenePosition$Gene[GenePosition$chr==chrName]
     data.subset <- data[genes,]
     
     # Get the average expression per cell per chromosome
@@ -221,7 +221,6 @@ NULL
         perChrExp[j,,i] <- ratio
       }
     }
-    #print(paste('Finished chromosome: ', dimnames(perChrExp)[[3]][i]))
   }
   return(perChrExp)
 }

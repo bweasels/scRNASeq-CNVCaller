@@ -17,7 +17,7 @@ plottingDir <- dirs[[3]]
 date <- Sys.Date()
 
 # Load data, and the start stop locations of each transcript
-data <- readRDS(paste0(outDir, 'data_all.RDS'))
+data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
 geneLocs.temp <- read.table(paste0(outDir, 'GeneLocs.txt'),
                             sep = '\t',
                             row.names = 1)
@@ -56,45 +56,39 @@ names(pathways) <- names
 pca.mat <- data@reductions$pca@cell.embeddings
 
 
-# Make the infercnv object
-
-#                                     pathways = pathways, 
-#                                     pcaLoadings = pca.mat)
-
 # Make an output directory for this run
-pThreshs <- c(0.01, 0.05, 0.1, 0.5, 1)
-dynRange <- c(5, 10, 50, 100, 500, 1000)
-for(i in 1:length(pThreshs)){
-  for(j in 1:length(dynRange)){
-    minRat <- 1/(dynRange[j]/2)
-    maxRat <- dynRange[j]/2
-    
-    infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
-                                                   gene_order_file = geneLocs,
-                                                   annotations_file = sampleAnnotation,
-                                                   ref_group_names = ref_groups)
-    
-    CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNorm_pThresh', pThreshs[i],'_dynRange',dynRange[j], '_', date)
-    dir.create(CNVcallerOut)
-    
-    # Auto detect the number of cpus
-    # Otherwise it defaults to 4 and we only utilize 25% of our cloud server XD
-    nCores <- parallel::detectCores()
-    
-    # Run infercnv
-    #infercnv_obj <- refactored_run(infercnv_obj,
-    infercnv_obj <- run_no_smoothing(infercnv_obj,
-                                     cutoff = 0.1,
-                                     out_dir = CNVcallerOut,
-                                     cluster_by_groups = T,
-                                     HMM = T,
-                                     num_threads = nCores,
-                                     denoise = T,
-                                     pathways = pathways,
-                                     pcaLoadings = pca.mat,
-                                     minExprRatio = minRat,
-                                     maxExprRatio = maxRat,
-                                     pThresh = pThreshs[i])
-    print(paste("Finished P Thresh:", pThreshs[i]))
-  }
-}
+pThresh <- 0.1
+dynRange <- 100
+
+minRat <- 1/(dynRange[j]/2)
+maxRat <- dynRange[j]/2
+
+infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(data@assays$RNA@counts), 
+                                               gene_order_file = geneLocs,
+                                               annotations_file = sampleAnnotation,
+                                               ref_group_names = ref_groups)
+
+CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNorm_pThresh', pThresh,'_dynRange',dynRange, '_', date)
+dir.create(CNVcallerOut)
+
+# Auto detect the number of cpus
+# Otherwise it defaults to 4 and we only utilize 25% of our cloud server XD
+nCores <- parallel::detectCores()
+
+# Run infercnv
+#infercnv_obj <- refactored_run(infercnv_obj,
+infercnv_obj <- run_no_smoothing(infercnv_obj,
+                                 cutoff = 0.1,
+                                 out_dir = CNVcallerOut,
+                                 cluster_by_groups = T,
+                                 HMM = T,
+                                 num_threads = nCores,
+                                 denoise = T,
+                                 pathways = pathways,
+                                 pcaLoadings = pca.mat,
+                                 minExprRatio = minRat,
+                                 maxExprRatio = maxRat,
+                                 pThresh = pThresh,
+                                 diagnostics = T,
+                                 resume_mode = F)
+print(paste("Finished P Thresh:", pThresh))
