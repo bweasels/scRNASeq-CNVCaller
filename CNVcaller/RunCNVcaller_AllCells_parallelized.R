@@ -62,8 +62,8 @@ pca.mat <- data@reductions$pca@cell.embeddings
 #                                     pcaLoadings = pca.mat)
 
 # Make an output directory for this run
-pThreshs <- c(0.01, 0.05, 0.1, 0.5, 1, 5, 10, 20, 50, 100)
-dynRange <- c(1000)
+pThreshs <- c(0.05, 0.1, 0.5, 1, 5, 10, 50, 100)
+dynRange <- 1000
 settings <- expand.grid(pThreshs,dynRange)
 settings <- as.list(as.data.frame(t(settings)))
 
