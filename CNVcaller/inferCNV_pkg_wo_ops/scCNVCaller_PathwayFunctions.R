@@ -63,7 +63,7 @@ NULL
       }
     }
     plot.df <- data.frame(plot.df, PCA.x = PCAEmbeddings[,1], PCA.y = PCAEmbeddings[,2])
-    pdf(paste0(plottingDir, 'ClusteredCellsDist.pdf'))
+    pdf(paste0(plottingDir, '/ClusteredCellsDist.pdf'))
     for(i in 1:length(reps)){
       p <- ggplot(plot.df, aes_string(x='PCA.x', y='PCA.y', color = reps[i])) + geom_point(size = 0.5)
       p <- p + labs(x = 'PC.1', y='PC.2', title = paste('Random 10% of Clusters |', reps[i]))
@@ -94,7 +94,7 @@ NULL
       }
     }
     plot.df <- data.frame(plot.df, PCA.x = PCAEmbeddings[,1], PCA.y = PCAEmbeddings[,2])
-    pdf(paste0(plottingDir, 'ClusteredCellsJoccardDist.pdf'))
+    pdf(paste0(plottingDir, '/ClusteredCellsJoccardDist.pdf'))
     for(i in 1:length(reps)){
       p <- ggplot(plot.df, aes_string(x='PCA.x', y='PCA.y', color = reps[i])) + geom_point(size = 0.5)
       p <- p + labs(x = 'PC.1', y='PC.2', title = paste('Random 10% of Clusters |', reps[i]))
@@ -162,7 +162,7 @@ NULL
   chromosomes <- paste0('chr', 1:22)
   
   options(scipen = 8)
-  pdf(paste0(plottingDir, 'ChromosomalCoveragePerPathway.pdf'), width = 21, height = 10)
+  pdf(paste0(plottingDir, '/ChromosomalCoveragePerPathway.pdf'), width = 21, height = 10)
   for(chr in chromosomes){
     p <- ggplot(pathwayLocs[pathwayLocs$chromosome==chr,], aes(x = loci, y = pathway)) + geom_point(size = 0.8)
     p <- p + labs(x = "Position", title = chr)
@@ -194,17 +194,17 @@ NULL
   # Create list of genes in each chromosome
   perChrExp <- array(0, dim = c(length(pathways),
                                  ncol(data),
-                                 length(unique(GenePosition$Chromosome))),
+                                 length(unique(GenePosition$chr))),
                      dimnames = list(names(pathways),
                                      colnames(data),
-                                     unique(GenePosition$Chromosome)))
+                                     unique(GenePosition$chr)))
   
   # populate each element in the list with the ratio of the pathway expression within chromosome to chromosomal average
   for(i in 1:dim(perChrExp)[3]){
     
     # Get the genes in each chromosome
     chrName <- dimnames(perChrExp)[[3]][i]
-    genes <- GenePosition$Gene[GenePosition$Chromosome==chrName]
+    genes <- GenePosition$Gene[GenePosition$chr==chrName]
     data.subset <- data[genes,]
     
     # Get the average expression per cell per chromosome
@@ -221,7 +221,6 @@ NULL
         perChrExp[j,,i] <- ratio
       }
     }
-    #print(paste('Finished chromosome: ', dimnames(perChrExp)[[3]][i]))
   }
   return(perChrExp)
 }

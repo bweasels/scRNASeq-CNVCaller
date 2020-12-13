@@ -565,7 +565,8 @@ run_no_smoothing <- function(infercnv_obj,
                                            pcaLoadings = pcaLoadings,
                                            pathways = pathways,
                                            minExprRatio = minExprRatio,
-                                           maxExprRatio = maxExprRatio)
+                                           maxExprRatio = maxExprRatio,
+                                           plottingDir = out_dir)
     }
   }
   ## #########################
@@ -1534,6 +1535,8 @@ run_no_smoothing <- function(infercnv_obj,
 #'  
 #' @param maxExprRatio # Roof above which pathway muting will be unreasonably strong
 #' 
+#' @param plottingDir # Directory to plot to
+#' 
 #' @return infercnv_obj containing the reference subtracted values.
 #'
 #' @keywords internal
@@ -1550,6 +1553,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
                                  validateClustering, # Limit to only two PCs for interpretability of clustering 
                                  pcaLoadings, # PCA Transformed dataset
                                  pathways, # Pathways to analyze against
+                                 plottingDir, # directory to plot to
                                  minExprRatio = 0.25, # Floor and roof for amp/muting (0.25 and 4 are 4 fold amp/mute)
                                  maxExprRatio = 4){
   
@@ -1579,7 +1583,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
                               dist.method = dist.method,
                               plot = plottingFlag,
                               valClust = validateClustering,
-                              plottingDir = out_dir)
+                              plottingDir = plottingDir)
   
   # Get top bin probability and then bin cells via the most probable neighbors
   nearestCells <- apply(p.mat, 2, function(x) rownames(p.mat)[order(x, decreasing = F)[1:numNeighbors]])
@@ -1592,7 +1596,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   
   # Make chromosomal overlap plots to validate chr overlap
   if(plottingFlag){
-    .ChromosomeCoveragePlot(pathways, GenePosition, out_dir)
+    .ChromosomeCoveragePlot(pathways, GenePosition, plottingDir)
     flog.info("Plotted chromosomal coverage of pathway genes")
   }
   
@@ -1651,37 +1655,52 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   flog.info("Determined Enriched Pathways in each cell")
   # get the expression matrix for normalizing
   reads <- data
-  
+  sigFoldChange <- c()
+  numPathways <- c()
+
   # normalize each chr expression for significant pathways
   for(i in 1:ncol(medPathwayRank)){
+    
+    # Get the pathways for each cell that passes the p.adj threshold
     sigPathways <- rownames(medPathwayRank)[medPathwayRank[,i]<pThresh]
-    for(path in sigPathways){
-      path.genes <- pathways[[path]]
-      path.genes <- GenePosition[GenePosition$Gene%in%path.genes,]
-      for(chr in unique(path.genes$Chromosome)){
-        chr.path.genes <- path.genes[path.genes$Chromosome==chr,]
-        reads.chr.path <- reads[rownames(reads)%in%chr.path.genes$Gene,i,drop = F]
+    numPathways <- c(numPathways, length(sigPathways))
+    if(length(sigPathways)>0){
+      for(path in sigPathways){
         
-        #Get the pathway expression ratio from the array and divide the binned counts by that expression
-        if(perChrExp[path,i,chr]<minExprRatio){
-          normFactor <- minExprRatio
-        }else if(perChrExp[path,i,chr]>maxExprRatio){
-          normFactor <- maxExprRatio
+        # Get the genes, start, stop and chr for the slected pathway
+        path.genes <- pathways[[path]]
+        path.genes <- GenePosition[GenePosition$Gene%in%path.genes,]
+        for(chr in unique(path.genes$chr)){
+          chr.path.genes <- path.genes[path.genes$chr==chr,]
+          reads.chr.path <- reads[rownames(reads)%in%chr.path.genes$Gene,i,drop = F]
+          
+          #Get the pathway expression ratio from the array and divide the binned counts by that expression
+          if(perChrExp[path,i,chr]<minExprRatio){
+            normFactor <- minExprRatio
+          }else if(perChrExp[path,i,chr]>maxExprRatio){
+            normFactor <- maxExprRatio
+          }else{
+            normFactor <- perChrExp[path, i, chr]
+          }
+          sigFoldChange <- c(sigFoldChange, normFactor)
+          reads.chr.path <- reads.chr.path/normFactor
+          
+          #Save the altered reads
+          reads[rownames(reads)%in%chr.path.genes$Gene, i] <- reads.chr.path
         }
-        else{
-          normFactor <- perChrExp[path, i, chr]
-        }
-        reads.chr.path <- reads.chr.path/normFactor
-        
-        #Save the altered reads
-        reads[rownames(reads)%in%chr.path.genes$Gene, i] <- reads.chr.path
       }
     }
   }
+  
+  if(plottingFlag){
+    pdf(paste0(plottingDir, "/PathwayEnrichmentStatistics.pdf"))
+    hist(medPathwayRank, main = "Distribution of all P Values")
+    hist(numPathways, main = "Number of Pathways overexpressed ")
+    hist(sigFoldChange, main = "Distribution of the fold change applied to the cells")
+    dev.off()
+  }
   flog.info("Normalized Cell Expression by significant pathway overexpression")
   infercnv_obj@expr.data <- reads
-  saveRDS(infercnv_obj, 'Debug_InferCNVObj.RDS')
-  saveRDS(perChrExp, 'MoreDebug.RDS')
   return(infercnv_obj)
 }
 
