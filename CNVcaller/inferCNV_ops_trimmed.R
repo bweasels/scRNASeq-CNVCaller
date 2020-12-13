@@ -1563,10 +1563,10 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   }
   
   # Extract the necessary information from the inferCNV object
-  data <- infercnv_obj@expr.data[,unlist(infercnv_obj@observation_grouped_cell_indices)]
+  data <- infercnv_obj@expr.data
   
   # Trim the pca data to the cells in the actual data
-  data.pca <- pcaLoadings[colnames(data),]
+  data.pca <- pcaLoadings
   
   # Gene_order has rownames for genes, but I want them to be in their own column so quickly do that
   GenePosition <- infercnv_obj@gene_order
@@ -1578,7 +1578,8 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
                               binSize = numNeighbors,
                               dist.method = dist.method,
                               plot = plottingFlag,
-                              valClust = validateClustering)
+                              valClust = validateClustering,
+                              plottingDir = out_dir)
   
   # Get top bin probability and then bin cells via the most probable neighbors
   nearestCells <- apply(p.mat, 2, function(x) rownames(p.mat)[order(x, decreasing = F)[1:numNeighbors]])
@@ -1591,7 +1592,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   
   # Make chromosomal overlap plots to validate chr overlap
   if(plottingFlag){
-    .ChromosomeCoveragePlot(pathways, GenePosition)
+    .ChromosomeCoveragePlot(pathways, GenePosition, out_dir)
     flog.info("Plotted chromosomal coverage of pathway genes")
   }
   
@@ -1678,7 +1679,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
     }
   }
   flog.info("Normalized Cell Expression by significant pathway overexpression")
-  infercnv_obj@expr.data[,unlist(infercnv_obj@observation_grouped_cell_indices)] <- reads
+  infercnv_obj@expr.data <- reads
   saveRDS(infercnv_obj, 'Debug_InferCNVObj.RDS')
   saveRDS(perChrExp, 'MoreDebug.RDS')
   return(infercnv_obj)

@@ -17,13 +17,15 @@ NULL
 #' 
 #' @param valClust boolean to limit to first 2 pcs to validate clustering algos
 #' 
+#' @param plottingDir output directory to plot to
+#' 
 #' @return p.mat
 #' 
 #' @keywords internal
 #' @noRd
 #' 
 
-.CalculateDistance <- function(PCAEmbeddings, nCores, binSize, dist.method, plot=F, valClust = F){
+.CalculateDistance <- function(PCAEmbeddings, nCores, binSize, dist.method, plot=F, valClust = F, plottingDir){
   require(parallel)
   
   # Identify the distance from one point to another
@@ -121,13 +123,16 @@ NULL
 #' 
 #' @param GenePosition list of gene start and stop sites and chr coverage
 #' 
+#' @param plottingDir directory to plot to
+#' 
 #' @return None
 #' 
 #' @keywords internal
 #' @noRd
 #' 
 .ChromosomeCoveragePlot <- function(pathways,
-                                    GenePosition){
+                                    GenePosition,
+                                    plottingDir){
   
   pathwayLocs <- c()
   for(i in 1:length(pathways)){
