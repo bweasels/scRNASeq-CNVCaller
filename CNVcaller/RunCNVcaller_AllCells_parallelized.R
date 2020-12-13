@@ -80,7 +80,7 @@ testPathwayNorm <- function(settings){
                                                  annotations_file = sampleAnnotation,
                                                  ref_group_names = ref_groups)
   
-  CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNorm_pThresh', pThresh,'_dynRange',dynRange, '_', date)
+  CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNormSum_pThresh', pThresh,'_dynRange',dynRange, '_', date)
   dir.create(CNVcallerOut)
   
   # Auto detect the number of cpus

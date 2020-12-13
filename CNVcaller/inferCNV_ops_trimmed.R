@@ -1584,7 +1584,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   nearestCells <- apply(p.mat, 2, function(x) rownames(p.mat)[order(x, decreasing = F)[1:numNeighbors]])
   binnedCells <- data
   for(i in 1:ncol(nearestCells)){
-    binnedCells[,i] <- rowMeans(binnedCells[,nearestCells[,i]])
+    binnedCells[,i] <- rowSums(binnedCells[,nearestCells[,i]])
   }
   flog.info('Calculated Neighbors and Binned Cells')
   
