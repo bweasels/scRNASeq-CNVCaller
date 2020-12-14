@@ -159,12 +159,13 @@ NULL
   }
   
   # Make an overlap plot for each chromosome
+  pathwayLocs$chromosome <- paste0('chr', pathwayLocs$chromosome)
   chromosomes <- paste0('chr', 1:22)
   
   options(scipen = 8)
   pdf(paste0(plottingDir, '/ChromosomalCoveragePerPathway.pdf'), width = 21, height = 10)
   for(chr in chromosomes){
-    p <- ggplot(pathwayLocs[pathwayLocs$chr==chr,], aes(x = loci, y = pathway)) + geom_point(size = 0.8)
+    p <- ggplot(pathwayLocs[pathwayLocs$chromosome==chr,], aes(x = loci, y = pathway)) + geom_point(size = 0.8)
     p <- p + labs(x = "Position", title = chr)
     plot(p)
   }

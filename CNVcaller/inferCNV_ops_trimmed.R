@@ -183,6 +183,8 @@ sourceAll('CNVcaller/inferCNV_pkg_wo_ops')
 #' 
 #' @param maxExprRatio maximum ratio that the pathway normalization will mute
 #' 
+#' @param skipChrSmoothing boolean to determine whether or not to keep chromosomal level smoothing in
+#' 
 #' #######################
 #' ## Experimental options
 #'
@@ -275,12 +277,10 @@ run_no_smoothing <- function(infercnv_obj,
                 sim_foreground=FALSE, ## experimental
                 reassignCNVs=TRUE,
                 
-                
                 ## tumor subclustering options
                 analysis_mode=c('samples', 'subclusters', 'cells'), # for filtering and HMM
                 tumor_subcluster_partition_method=c('random_trees', 'qnorm', 'pheight', 'qgamma', 'shc'),
                 tumor_subcluster_pval=0.1,
-                
                 
                 ## noise settings
                 denoise=FALSE,
@@ -311,11 +311,12 @@ run_no_smoothing <- function(infercnv_obj,
                 dist.method = 'euclidean',
                 nIter = 100000,
                 pThresh = 0.05,
-                validateClustering = F,
+                validateClustering = FALSE,
                 pcaLoadings = NULL,
                 pathways = NULL,
                 minExprRatio = 0.25,
                 maxExprRatio = 4,
+                skipChrSmoothing = FALSE,
 
                 ## experimental options
                 remove_genes_at_chr_ends=FALSE,
@@ -792,125 +793,130 @@ run_no_smoothing <- function(infercnv_obj,
   }
   
   
-  
-  ## #########################################################################
-  ## Step: For each cell, smooth the data along chromosome with gene windows
-  
-  if (up_to_step == step_count) {
-    flog.info("Reached up_to_step")
-    return(infercnv_obj)
-  }
-  step_count = step_count + 1 # 10
-  flog.info(sprintf("\n\n\tSTEP %02d: Smoothing data per cell by chromosome\n", step_count))
-  
-  if (skip_past < step_count) {
+  if(!skipChrSmoothing){
+    ## #########################################################################
+    ## Step: For each cell, smooth the data along chromosome with gene windows
     
-    if (smooth_method == 'runmeans') {
+    if (up_to_step == step_count) {
+      flog.info("Reached up_to_step")
+      return(infercnv_obj)
+    }
+    step_count = step_count + 1 # 10
+    flog.info(sprintf("\n\n\tSTEP %02d: Smoothing data per cell by chromosome\n", step_count))
+    
+    if (skip_past < step_count) {
       
-      infercnv_obj <- smooth_by_chromosome_runmeans(infercnv_obj, window_length)
-    } else if (smooth_method == 'pyramidinal') {
+      if (smooth_method == 'runmeans') {
+        
+        infercnv_obj <- smooth_by_chromosome_runmeans(infercnv_obj, window_length)
+      } else if (smooth_method == 'pyramidinal') {
+        
+        infercnv_obj <- smooth_by_chromosome(infercnv_obj, window_length=window_length, smooth_ends=TRUE)
+      } else if (smooth_method == 'coordinates') {
+        infercnv_obj <- smooth_by_chromosome_coordinates(infercnv_obj, window_length=window_length)
+      } else {
+        stop(sprintf("Error, don't recognize smoothing method: %s", smooth_method))
+      }
       
-      infercnv_obj <- smooth_by_chromosome(infercnv_obj, window_length=window_length, smooth_ends=TRUE)
-    } else if (smooth_method == 'coordinates') {
-      infercnv_obj <- smooth_by_chromosome_coordinates(infercnv_obj, window_length=window_length)
-    } else {
-      stop(sprintf("Error, don't recognize smoothing method: %s", smooth_method))
+      if (save_rds) {
+        saveRDS(infercnv_obj, reload_info$expected_file_names[[step_count]])
+      }
+      invisible(gc())
+      
+      ## Plot incremental steps.
+      if (plot_steps){
+        
+        plot_cnv(infercnv_obj,
+                 k_obs_groups=k_obs_groups,
+                 cluster_by_groups=cluster_by_groups,
+                 cluster_references=cluster_references,
+                 out_dir=out_dir,
+                 title=sprintf("%02d_smoothed_by_chr",step_count),
+                 output_filename=sprintf("infercnv.%02d_smoothed_by_chr", step_count),
+                 output_format=output_format,
+                 write_expr_matrix=TRUE,
+                 png_res=png_res,
+                 useRaster=useRaster)
+      }
     }
     
-    if (save_rds) {
-      saveRDS(infercnv_obj, reload_info$expected_file_names[[step_count]])
-    }
-    invisible(gc())
+    ##
+    ## Step:
+    ## Center cells/observations after smoothing. This helps reduce the
+    ## effect of complexity.
     
-    ## Plot incremental steps.
-    if (plot_steps){
+    if (up_to_step == step_count) {
+      flog.info("Reached up_to_step")
+      return(infercnv_obj)
+    }
+    step_count = step_count + 1 # 11
+    flog.info(sprintf("\n\n\tSTEP %02d: re-centering data across chromosome after smoothing\n", step_count))
+    
+    if (skip_past < step_count) {
+      infercnv_obj <- center_cell_expr_across_chromosome(infercnv_obj, method="median")
       
-      plot_cnv(infercnv_obj,
-               k_obs_groups=k_obs_groups,
-               cluster_by_groups=cluster_by_groups,
-               cluster_references=cluster_references,
-               out_dir=out_dir,
-               title=sprintf("%02d_smoothed_by_chr",step_count),
-               output_filename=sprintf("infercnv.%02d_smoothed_by_chr", step_count),
-               output_format=output_format,
-               write_expr_matrix=TRUE,
-               png_res=png_res,
-               useRaster=useRaster)
+      if (save_rds) {
+        saveRDS(infercnv_obj, reload_info$expected_file_names[[step_count]])
+      }
+      invisible(gc())
+      
+      ## Plot incremental steps.
+      if (plot_steps) {
+        
+        plot_cnv(infercnv_obj,
+                 k_obs_groups=k_obs_groups,
+                 cluster_by_groups=cluster_by_groups,
+                 cluster_references=cluster_references,
+                 out_dir=out_dir,
+                 title=sprintf("%02d_centering_of_smoothed",step_count),
+                 output_filename=sprintf("infercnv.%02d_centering_of_smoothed", step_count),
+                 output_format=output_format,
+                 write_expr_matrix=TRUE,
+                 png_res=png_res,
+                 useRaster=useRaster)
+        
+      }
+    }
+    
+    
+    
+    ## ##################################
+    ## Step: Subtract average reference (adjustment)
+    
+    if (up_to_step == step_count) {
+      flog.info("Reached up_to_step")
+      return(infercnv_obj)
+    }
+    step_count = step_count + 1 # 12
+    flog.info(sprintf("\n\n\tSTEP %02d: removing average of reference data (after smoothing)\n", step_count))
+    
+    if (skip_past < step_count) {
+      infercnv_obj <- subtract_ref_expr_from_obs(infercnv_obj, inv_log=FALSE, use_bounds=ref_subtract_use_mean_bounds)
+      
+      if (save_rds) {
+        saveRDS(infercnv_obj, reload_info$expected_file_names[[step_count]])
+      }
+      invisible(gc())
+      
+      if (plot_steps) {
+        plot_cnv(infercnv_obj,
+                 k_obs_groups=k_obs_groups,
+                 cluster_by_groups=cluster_by_groups,
+                 cluster_references=cluster_references,
+                 out_dir=out_dir,
+                 title=sprintf("%02d_remove_average",step_count),
+                 output_filename=sprintf("infercnv.%02d_remove_average", step_count),
+                 output_format=output_format,
+                 write_expr_matrix=TRUE,
+                 png_res=png_res,
+                 useRaster=useRaster)
+      }
     }
   }
-  
-  
-  ##
-  ## Step:
-  ## Center cells/observations after smoothing. This helps reduce the
-  ## effect of complexity.
-  
-  if (up_to_step == step_count) {
-    flog.info("Reached up_to_step")
-    return(infercnv_obj)
-  }
-  step_count = step_count + 1 # 11
-  flog.info(sprintf("\n\n\tSTEP %02d: re-centering data across chromosome after smoothing\n", step_count))
-  
-  if (skip_past < step_count) {
-    infercnv_obj <- center_cell_expr_across_chromosome(infercnv_obj, method="median")
-    
-    if (save_rds) {
-      saveRDS(infercnv_obj, reload_info$expected_file_names[[step_count]])
-    }
-    invisible(gc())
-    
-    ## Plot incremental steps.
-    if (plot_steps) {
-      
-      plot_cnv(infercnv_obj,
-               k_obs_groups=k_obs_groups,
-               cluster_by_groups=cluster_by_groups,
-               cluster_references=cluster_references,
-               out_dir=out_dir,
-               title=sprintf("%02d_centering_of_smoothed",step_count),
-               output_filename=sprintf("infercnv.%02d_centering_of_smoothed", step_count),
-               output_format=output_format,
-               write_expr_matrix=TRUE,
-               png_res=png_res,
-               useRaster=useRaster)
-      
-    }
-  }
-  
-  
-  
-  ## ##################################
-  ## Step: Subtract average reference (adjustment)
-  
-  if (up_to_step == step_count) {
-    flog.info("Reached up_to_step")
-    return(infercnv_obj)
-  }
-  step_count = step_count + 1 # 12
-  flog.info(sprintf("\n\n\tSTEP %02d: removing average of reference data (after smoothing)\n", step_count))
-  
-  if (skip_past < step_count) {
-    infercnv_obj <- subtract_ref_expr_from_obs(infercnv_obj, inv_log=FALSE, use_bounds=ref_subtract_use_mean_bounds)
-    
-    if (save_rds) {
-      saveRDS(infercnv_obj, reload_info$expected_file_names[[step_count]])
-    }
-    invisible(gc())
-    
-    if (plot_steps) {
-      plot_cnv(infercnv_obj,
-               k_obs_groups=k_obs_groups,
-               cluster_by_groups=cluster_by_groups,
-               cluster_references=cluster_references,
-               out_dir=out_dir,
-               title=sprintf("%02d_remove_average",step_count),
-               output_filename=sprintf("infercnv.%02d_remove_average", step_count),
-               output_format=output_format,
-               write_expr_matrix=TRUE,
-               png_res=png_res,
-               useRaster=useRaster)
-    }
+  if(!skipChrSmoothing){
+    saveRDS(infercnv_obj, "InferCNVObjSkipped.RDS")
+  }else{
+    saveRDS(infercnv_obj, "InferCNVObjNormal.RDS")
   }
   
   
@@ -1596,6 +1602,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   
   # Make chromosomal overlap plots to validate chr overlap
   if(plottingFlag){
+    saveRDS(list(pathwayList = pathways, GenePos = GenePosition, plottingDir = plottingDir), 'DataForChromosomalCoveragePlot.RDS')
     .ChromosomeCoveragePlot(pathways, GenePosition, plottingDir)
     flog.info("Plotted chromosomal coverage of pathway genes")
   }

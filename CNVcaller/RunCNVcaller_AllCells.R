@@ -17,7 +17,7 @@ plottingDir <- dirs[[3]]
 date <- Sys.Date()
 
 # Load data, and the start stop locations of each transcript
-data <- readRDS(paste0(outDir, 'data_all.RDS'))
+data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
 geneLocs.temp <- read.table(paste0(outDir, 'GeneLocs.txt'),
                             sep = '\t',
                             row.names = 1)
@@ -68,7 +68,7 @@ infercnv_obj <- infercnv::CreateInfercnvObject(raw_counts_matrix = as.matrix(dat
                                                annotations_file = sampleAnnotation,
                                                ref_group_names = ref_groups)
 
-CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNorm_pThresh', pThresh,'_dynRange',dynRange, '_', date)
+CNVcallerOut <- paste0(outDir, 'CNVcaller_pathwayNormOnly_pThresh', pThresh,'_dynRange',dynRange, '_', date)
 dir.create(CNVcallerOut)
 
 # Auto detect the number of cpus
@@ -83,12 +83,13 @@ infercnv_obj <- run_no_smoothing(infercnv_obj,
                                  cluster_by_groups = T,
                                  HMM = T,
                                  num_threads = nCores,
-                                 denoise = F,
+                                 denoise = T,
                                  pathways = pathways,
                                  pcaLoadings = pca.mat,
                                  minExprRatio = minRat,
                                  maxExprRatio = maxRat,
                                  pThresh = pThresh,
                                  diagnostics = T,
-                                 resume_mode = F)
+                                 resume_mode = F,
+                                 skipChrSmooth = F)
 print(paste("Finished P Thresh:", pThresh))
