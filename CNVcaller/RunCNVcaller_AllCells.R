@@ -17,7 +17,7 @@ plottingDir <- dirs[[3]]
 date <- Sys.Date()
 
 # Load data, and the start stop locations of each transcript
-data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
+data <- readRDS(paste0(outDir, 'data_all.RDS'))
 geneLocs.temp <- read.table(paste0(outDir, 'GeneLocs.txt'),
                             sep = '\t',
                             row.names = 1)
@@ -89,6 +89,6 @@ infercnv_obj <- run_no_smoothing(infercnv_obj,
                                  minExprRatio = minRat,
                                  maxExprRatio = maxRat,
                                  pThresh = pThresh,
-                                 diagnostics = F,
+                                 diagnostics = T,
                                  resume_mode = F)
 print(paste("Finished P Thresh:", pThresh))
