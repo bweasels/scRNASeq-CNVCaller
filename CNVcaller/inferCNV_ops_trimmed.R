@@ -1603,6 +1603,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
   # Calculate the ratio of pathway expression/chromosome to overall chromosome expression
   perChrExp <- .AvgExpPerChromosome(pathways, data, GenePosition)
   
+  perChrExp[!is.finite(perChrExp)] <- 1
   perChrExp[perChrExp<minExprRatio] <- minExprRatio
   perChrExp[perChrExp>maxExprRatio] <- maxExprRatio
   
@@ -1675,13 +1676,6 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
           reads.chr.path <- reads[rownames(reads)%in%chr.path.genes$Gene,i,drop = F]
           
           #Get the pathway expression ratio from the array and divide the binned counts by that expression
-          if(perChrExp[path,i,chr]<minExprRatio){
-            normFactor <- minExprRatio
-          }else if(perChrExp[path,i,chr]>maxExprRatio){
-            normFactor <- maxExprRatio
-          }else{
-            normFactor <- perChrExp[path, i, chr]
-          }
           sigFoldChange <- c(sigFoldChange, normFactor)
           reads.chr.path <- reads.chr.path/normFactor
           
