@@ -1676,6 +1676,7 @@ normalize_by_pathway <- function(infercnv_obj, # Object passed via inferCNV
           reads.chr.path <- reads[rownames(reads)%in%chr.path.genes$Gene,i,drop = F]
           
           #Get the pathway expression ratio from the array and divide the binned counts by that expression
+          normFactor <- perChrExp[path, i, chr]
           sigFoldChange <- c(sigFoldChange, normFactor)
           reads.chr.path <- reads.chr.path/normFactor
           
