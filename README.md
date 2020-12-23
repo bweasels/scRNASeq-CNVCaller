@@ -7,7 +7,7 @@ This repository contains code for our pathway based CNVCaller and implentations 
 
 Data is available via a google bucket: `gs://compgenomics_sccnvcaller/data.zip` (access requires [gsutil](https://cloud.google.com/storage/docs/gsutil_install))
 
-All of these files are run on R 4.0.3. Required packages and their versions can be found in the `sessionInfo.txt` file in the attached data
+All of these files are run on R 4.0.3. Required packages and their versions can be found in the `sessionInfo.txt` file in the attached data.
 
 In order to make the program work on multiple systems, all paths are relative to:
 
@@ -21,7 +21,7 @@ Please edit it such that it addresses the dataDir and outDir in the zipped data 
 Like inferCNV, scRNASeq-CNVCaller require three inputs:
 - the read count matrix 
 - the cell type annotation file
-- the gene ordering file (geneLocs)
+- the gene ordering file 
 
 
 ## Usage
@@ -53,21 +53,22 @@ scRNASeq-CNVCaller algorithm is described in CNVcaller_Algo.R. To run it on your
 
 Subdirectories in CNVcaller include:
 
-- inferCNVscripts - all the files from the original inferCNV package that are required to run scRNASeq-CNVCaller.
-- PathwayDevFiles - scripts used for developing the new pathway normalization feature.
-- CNVcaller_Refactoring - scripts for streamlining the code of the current scRNASeq-CNVCaller implementation (WIP).
+- inferCNVscripts - files from the original inferCNV package that are required to run scRNASeq-CNVCaller
+- PathwayDevFiles - scripts used for developing the new pathway normalization feature
+- CNVcaller_Refactoring - scripts for streamlining the code of the current scRNASeq-CNVCaller implementation (WIP)
 
 
 #### Run inferCNV
 ```
 Rscript inferCNV/RunInferCNV_AllCells.R
 ```
+We use separate scripts for each of the datasets we tested (melanoma dataset, null dataset, smaller liver cancer dataset, etc). All are modified versions of RunInferCNV_AllCells.R.
 
-Run HoneyBADGER
+
+#### Run HoneyBADGER
 ```
 Rscript HoneyBADGER/RunHoneyBADGER_AllCells.R
 ```
+We use separate scripts for each of the datasets we tested. All are modified versions of RunHoneyBADGER_AllCells.R.
 
-# TODO: add what each file is doing
 # TODO: add inputs & outputs folders to git with a filtered example
-# TODO: add steps to perform to obtain all input files  
