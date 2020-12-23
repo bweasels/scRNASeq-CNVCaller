@@ -5,7 +5,7 @@ This repository contains code for our pathway based CNVCaller and implentations 
 
 ## Data and Package Availability
 
-Data is available via a google bucket with the following command: `gsutil cp gs://compgenomics_sccnvcaller/data.zip <your local directory>` (requires [gsutil](https://cloud.google.com/storage/docs/gsutil_install))
+Data is available via a google bucket: `gs://compgenomics_sccnvcaller/data.zip` (access requires [gsutil](https://cloud.google.com/storage/docs/gsutil_install))
 
 All of these files are run on R 4.0.3. Required packages and their versions can be found in the `sessionInfo.txt` file in the attached data
 
