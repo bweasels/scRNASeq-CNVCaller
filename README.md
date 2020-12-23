@@ -4,6 +4,7 @@ This repository contains code for our pathway based CNVCaller and implentations 
 
 
 ##Data and Package Availability
+
 Data is available via a google bucket with the following command: `gsutil cp gs://compgenomics_sccnvcaller/data.zip` (requires [gsutil](https://cloud.google.com/storage/docs/gsutil_install))
 
 All of these files are run on R 4.0.3. Required packages and their versions can be found in the `sessionInfo.txt` file in the attached data
@@ -18,6 +19,7 @@ We have provided a convience function, `setDirectory()` within `Utils.R` to auto
 Please edit it such that it addresses the datDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
 
 ##Usage
+
 
 Inference takes 15 min to run on a cloud server and ~ 90 min on a local computer.
 
