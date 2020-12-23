@@ -1,8 +1,3 @@
----
-title: "README"
-output: html_document
----
-
 This repository contains code for scRNASeq-CNVCaller and for our implentations of HoneyBADGER and inferCNV. scRNASeq-CNVCaller is a supplement to the existing inferCNV package which refines the program’s ability to identify copy number variations in scRNA-Seq datasets. This feature utilizes a simplified gene set enrichment algorithm to identify and normalize overexpressed gene expression pathways.
 
 The scRNA-Seq datasets we have tested are available at:
