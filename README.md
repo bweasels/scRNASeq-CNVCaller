@@ -15,7 +15,7 @@ In order to make the program work on multiple systems, all paths are relative to
 - outDir: directory with processed files, and outputs from scripts
 - plottingDir: directory to place stand alone plots
 
-We have provided a convience function, `setDirectory()` within `Utils.R` to automatically set those directories to suit your local filesystem. 
+We have provided a convience function, `setDirectory()`, within `Utils.R` to automatically set those directories to suit your local filesystem. 
 Please edit it such that it addresses the datDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
 
 ## Usage
@@ -42,7 +42,6 @@ Run HoneyBADGER:
 Rscript HoneyBADGER/RunHoneyBADGER_AllCells.R
 ```
 
-#TODO: add what each file is doing
-#TODO: add inputs & outputs folders to git with a filtered example
-#TODO: add steps to perform to obtain all input files
-#TODO: point to dataDir, outDir, plottingDir in Utils   
+# TODO: add what each file is doing
+# TODO: add inputs & outputs folders to git with a filtered example
+# TODO: add steps to perform to obtain all input files  
