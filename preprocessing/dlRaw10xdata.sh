@@ -1,5 +1,5 @@
 #!/bin/bash
-# This will dl the raw 10x data and break into fastqs
+# This will dl the raw 10x data, break into fastqs and then align with cellRanger
 
 OUT_DIR=/home/bkw2118/extDrive/scRNASeq-CNVCaller/data/raw10XFiles/
 GEO_URL=https://sra-pub-src-2.s3.amazonaws.com/SRR6885508/Pt14.d_possorted_genome_bam.bam.1
