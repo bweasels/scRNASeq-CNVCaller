@@ -3,7 +3,7 @@
 This repository contains code for our pathway based CNVCaller and implentations of HoneyBADGER and inferCNV. The Pathway Based CNVCaller is a supplement to the existing inferCNV package which refines the program’s ability to identify copy number variations in scRNA-Seq datasets. This feature utilizes a simplified gene set enrichment algorithm to identify and normalize overexpressed gene expression pathways.
 
 
-##Data and Package Availability##
+## Data and Package Availability
 
 Data is available via a google bucket with the following command: `gsutil cp gs://compgenomics_sccnvcaller/data.zip` (requires [gsutil](https://cloud.google.com/storage/docs/gsutil_install))
 
@@ -18,7 +18,7 @@ In order to make the program work on multiple systems, all paths are relative to
 We have provided a convience function, `setDirectory()` within `Utils.R` to automatically set those directories to suit your local filesystem. 
 Please edit it such that it addresses the datDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
 
-##Usage##
+## Usage
 
 
 Inference takes 15 min to run on a cloud server and ~ 90 min on a local computer.
