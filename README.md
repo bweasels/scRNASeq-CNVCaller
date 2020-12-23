@@ -46,11 +46,11 @@ Inference takes 15 min to run on a cloud server and ~ 90 min on a local computer
 You can run the different algorithms using the following commands.
 
 #### scRNASeq-CNVCaller
+We describe scRNASeq-CNVCaller algorithm in CNVcaller_Algo.R. Use RunCNVcaller_AllCells.R to run the algorithm on your preprocessed dataset.
+
 ```
 Rscript CNVCaller/RunCNVcaller_AllCells.R
 ```
-scRNASeq-CNVCaller algorithm is described in CNVcaller_Algo.R. To run it on your preprocessed dataset, run CNVCaller/RunCNVcaller_AllCells.R.
-
 Subdirectories in CNVcaller include:
 
 - inferCNVscripts - files from the original inferCNV package that are required to run scRNASeq-CNVCaller
