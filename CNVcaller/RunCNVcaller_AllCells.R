@@ -18,7 +18,7 @@ date <- Sys.Date()
 
 # Load data, and the start stop locations of each transcript
 data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
-geneLocs.temp <- read.table(paste0(outDir, 'GeneLocs.txt'),
+geneLocs.temp <- read.table(paste0(dataDir, 'GeneLocs.txt'),
                             sep = '\t',
                             row.names = 1)
 # So InferCNV is using all the chromosomes (including mito etc, so trim them out, and leave chr 1-22
@@ -47,7 +47,7 @@ ref_groups <- unique(sampleAnnotation$cellType)
 ref_groups <- ref_groups[!grepl('HCC', ref_groups)]
 
 # load HallmarkGenes and stick in a list
-pathways <- GSA::GSA.read.gmt(paste0(outDir, 'h.all.v7.2.symbols.gmt'))
+pathways <- GSA::GSA.read.gmt(paste0(dataDir, 'h.all.v7.2.symbols.gmt'))
 names <- pathways[[2]]
 pathways <- pathways[[1]]
 names(pathways) <- names

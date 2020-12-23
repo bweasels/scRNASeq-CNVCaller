@@ -1,22 +1,23 @@
-This repository contains code for scRNASeq-CNVCaller and for our implentations of HoneyBADGER and inferCNV. scRNASeq-CNVCaller is a supplement to the existing inferCNV package which refines the program’s ability to identify copy number variations in scRNA-Seq datasets. This feature utilizes a simplified gene set enrichment algorithm to identify and normalize overexpressed gene expression pathways.
+# Pathway Normalization Based CNV Caller
 
-The scRNA-Seq datasets we have tested are available at:
-- link to liver dataset
-- link to melanoma dataset
+This repository contains code for our pathway based CNVCaller and implentations of HoneyBADGER and inferCNV. The Pathway Based CNVCaller is a supplement to the existing inferCNV package which refines the program’s ability to identify copy number variations in scRNA-Seq datasets. This feature utilizes a simplified gene set enrichment algorithm to identify and normalize overexpressed gene expression pathways.
 
-**Usage**
 
-As a prerequisite, you must have R installed to use this repository.
+##Data and Package Availability
+Data is available via a google bucket with the following command: `gsutil cp gs://compgenomics_sccnvcaller/data.zip` (requires [gsutil](https://cloud.google.com/storage/docs/gsutil_install))
 
-Input files for the scRNA-Seq dataset consist of: 
+All of these files are run on R 4.0.3. Required packages and their versions can be found in the `sessionInfo.txt` file in the attached data
 
--
-- 
-- 
--
+In order to make the program work on multiple systems, all paths are relative to:
 
-All input files should be added to the inputs folder. 
-During inference, output files will be generated in the outputs folder.
+- dataDir: directory with raw, unprocessed files
+- outDir: directory with processed files, and outputs from scripts
+- plottingDir: directory to place stand alone plots
+
+We have provided a convience function, `setDirectory()` within `Utils.R` to automatically set those directories to suit your local filesystem. 
+Please edit it such that it addresses the datDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
+
+##Usage
 
 Inference takes 15 min to run on a cloud server and ~ 90 min on a local computer.
 
