@@ -51,7 +51,7 @@ We describe scRNASeq-CNVCaller algorithm in CNVcaller_Algo.R. Use RunCNVcaller_A
 ```
 Rscript CNVCaller/RunCNVcaller_AllCells.R
 ```
-Subdirectories in CNVcaller include:
+CNVcaller subdirectories include:
 
 - inferCNVscripts - files from the original inferCNV package that are required to run scRNASeq-CNVCaller
 - PathwayDevFiles - scripts used for developing the new pathway normalization feature
