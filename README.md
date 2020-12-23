@@ -27,28 +27,43 @@ Like inferCNV, scRNASeq-CNVCaller require three inputs:
 ## Usage
 
 
-#### Dataset preprocessing:
+### Dataset preprocessing
 In the preprocessing directory, we provide scripts to filter out bad quality data and to annotate the remaining data.
 We use FilterMelanoma.R for the melanoma dataset (*quote*) and FilterLiverCancer.R for the liver dataset (*quote*).
+The preprocessed data is saved as an RDS object (data_all.RDS) in outDir.
+```
+Rscript preprocessing/FilterLiverCancer.R
+```
 
 We also simulate a null dataset to provide a negative control. To generate it, run generateSplatterDataset.R.
+The null dataset is also saved as a RDS object (data_sim.RDS) in outDir.
+```
+Rscript preprocessing/generateSplatterDataset.R
+```
 
-
-#### Inference
+### Inference
 Inference takes 15 min to run on a cloud server and ~ 90 min on a local computer.
 You can run the different algorithms using the following commands.
 
-Run scRNASeq-CNVCaller:
+#### scRNASeq-CNVCaller
 ```
 Rscript CNVCaller/RunCNVcaller_AllCells.R
 ```
+scRNASeq-CNVCaller algorithm is described in CNVcaller_Algo.R. To run it on your preprocessed dataset, run CNVCaller/RunCNVcaller_AllCells.R.
 
-Run inferCNV:
+Subdirectories in CNVcaller include:
+
+- inferCNVscripts - all the files from the original inferCNV package that are required to run scRNASeq-CNVCaller.
+- PathwayDevFiles - scripts used for developing the new pathway normalization feature.
+- CNVcaller_Refactoring - scripts for streamlining the code of the current scRNASeq-CNVCaller implementation (WIP).
+
+
+#### Run inferCNV
 ```
 Rscript inferCNV/RunInferCNV_AllCells.R
 ```
 
-Run HoneyBADGER:
+Run HoneyBADGER
 ```
 Rscript HoneyBADGER/RunHoneyBADGER_AllCells.R
 ```
