@@ -18,14 +18,25 @@ In order to make the program work on multiple systems, all paths are relative to
 We have provided a convience function, `setDirectory()`, within `Utils.R` to automatically set those directories to suit your local filesystem. 
 Please edit it such that it addresses the dataDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
 
+Like inferCNV, scRNASeq-CNVCaller require three inputs:
+- the read count matrix 
+- the cell type annotation file
+- the gene ordering file (geneLocs)
+
+
 ## Usage
 
 
+#### Dataset preprocessing:
+In the preprocessing directory, we provide scripts to filter out bad quality data and to annotate the remaining data.
+We use FilterMelanoma.R for the melanoma dataset (*quote*) and FilterLiverCancer.R for the liver dataset (*quote*).
+
+We also simulate a null dataset to provide a negative control. To generate it, run generateSplatterDataset.R.
+
+
+#### Inference
 Inference takes 15 min to run on a cloud server and ~ 90 min on a local computer.
-
 You can run the different algorithms using the following commands.
-
-First, preprocess the dataset:
 
 Run scRNASeq-CNVCaller:
 ```
