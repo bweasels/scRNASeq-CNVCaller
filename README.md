@@ -16,7 +16,7 @@ In order to make the program work on multiple systems, all paths are relative to
 - plottingDir: directory to place stand alone plots
 
 We have provided a convience function, `setDirectory()`, within `Utils.R` to automatically set those directories to suit your local filesystem. 
-Please edit it such that it addresses the datDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
+Please edit it such that it addresses the dataDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
 
 ## Usage
 
