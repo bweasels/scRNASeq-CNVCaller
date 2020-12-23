@@ -47,7 +47,7 @@ ref_groups <- unique(sampleAnnotation$cellType)
 ref_groups <- ref_groups[!grepl('HCC', ref_groups)]
 
 # load HallmarkGenes and stick in a list
-pathways <- GSA::GSA.read.gmt('h.all.v7.2.symbols.gmt')
+pathways <- GSA::GSA.read.gmt(paste0(outDir, 'h.all.v7.2.symbols.gmt'))
 names <- pathways[[2]]
 pathways <- pathways[[1]]
 names(pathways) <- names
