@@ -5,7 +5,6 @@ library(ggplot2)
 library(matrixStats)
 library(digest)
 
-#source('CNVcaller/runCNVcaller.R')
 source('CNVcaller/inferCNV_ops_trimmed.R')
 source('Utils.R')
 
