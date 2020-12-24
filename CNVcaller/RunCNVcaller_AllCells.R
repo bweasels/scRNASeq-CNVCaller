@@ -5,7 +5,7 @@ library(ggplot2)
 library(matrixStats)
 library(digest)
 
-source('CNVcaller/inferCNV_ops_trimmed.R')
+source('CNVcaller/CNVcaller_Algo.R')
 source('Utils.R')
 
 # Try to run CNVcaller on the scRNASeq dataset

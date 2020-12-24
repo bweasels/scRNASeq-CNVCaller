@@ -1,7 +1,6 @@
 library(infercnv)
 
-#source('CNVcaller/runCNVcaller.R')
-source('CNVcaller/inferCNV_ops_trimmed.R')
+source('CNVcaller/CNVcaller_Algo')
 source('Utils.R')
 
 # Try to run InferCNV on the scRNASeq dataset

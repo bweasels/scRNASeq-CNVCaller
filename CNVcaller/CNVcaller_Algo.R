@@ -4,7 +4,7 @@ library(infercnv)
 library(Jmisc)
 
 # Load functions
-sourceAll('CNVcaller/inferCNV_pkg_wo_ops')
+sourceAll('CNVcaller/inferCNVscripts')
 
 
 #' Function doing the actual analysis before calling the plotting functions.

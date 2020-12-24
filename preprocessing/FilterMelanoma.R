@@ -1,14 +1,15 @@
 #Analyze the melanoma samples
 source('Utils.R')
-dirs <- setDirectory()
-outDir <- dirs[[1]]
-dataDir <- dirs[[2]]
-plottingDir <- dirs[[3]]
 
 library(Seurat)
 library(ggplot2)
 library(cowplot)
 library(future)
+
+dirs <- setDirectory()
+outDir <- dirs[[1]]
+dataDir <- dirs[[2]]
+plottingDir <- dirs[[3]]
 
 date <- Sys.Date()
 

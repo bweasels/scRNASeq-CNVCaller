@@ -1,4 +1,4 @@
-## Generate our test datasets with Splatter
+## Generate our test dataset with Splatter
 
 # Use source for homebrew scripts
 source('Utils.R')
