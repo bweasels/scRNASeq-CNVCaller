@@ -16,7 +16,7 @@ plottingDir <- dirs[[3]]
 date <- Sys.Date()
 
 # Load data, and the start stop locations of each transcript
-data <- readRDS(paste0(outDir, 'dataFiltered.RDS'))
+data <- readRDS(paste0(outDir, 'dataFiltered.small.RDS'))
 geneLocs.temp <- read.table(paste0(dataDir, 'GeneLocs.txt'),
                             sep = '\t',
                             row.names = 1)
