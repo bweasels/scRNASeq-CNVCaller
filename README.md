@@ -19,9 +19,9 @@ We have provided a convience function, `setDirectory()`, within `Utils.R` to aut
 Please edit it such that it addresses the dataDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
 
 Like inferCNV, scRNASeq-CNVCaller require three inputs:
-- the read count matrix 
-- the cell type annotation file
-- the gene ordering file 
+- a read count matrix 
+- a cell type annotation file
+- a gene ordering file 
 
 
 ## Usage
@@ -70,5 +70,10 @@ We use separate scripts for each of the datasets we tested (melanoma dataset, nu
 Rscript HoneyBADGER/RunHoneyBADGER_AllCells.R
 ```
 We use separate scripts for each of the datasets we tested. All are modified versions of RunHoneyBADGER_AllCells.R.
+RunHoneyBADGER_AllCellsBAMReference.R was implemented using BAM files generated from Fastq by CellRanger and VCF files generated using bcftools.
 
-# TODO: add inputs & outputs folders to git with a filtered example
+
+#### Run CaSpER
+```
+Rscript CaSpER/RunCaSpER_AllCells.R
+```
