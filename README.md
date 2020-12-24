@@ -55,7 +55,6 @@ Rscript CNVCaller/RunCNVcaller_AllCells.R
 CNVcaller subdirectories include:
 
 - inferCNVscripts - files from the original inferCNV package that are required to run scRNASeq-CNVCaller
-- PathwayDevFiles - scripts used for developing the new pathway normalization feature
 - CNVcaller_Refactoring - scripts for streamlining the code of the current scRNASeq-CNVCaller implementation (WIP)
 
 
