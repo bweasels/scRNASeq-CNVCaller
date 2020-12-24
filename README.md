@@ -7,7 +7,7 @@ This repository contains code for our pathway based CNVCaller and implentations 
 
 Data is available via a google bucket: `gs://compgenomics_sccnvcaller/data.zip` (access requires [gsutil](https://cloud.google.com/storage/docs/gsutil_install))
 
-All of these files are run on R 4.0.3. Required packages and their versions can be found in the `sessionInfo.txt` file in the attached data.
+All of these files are run on R 4.0.3. Required packages and their versions can be found in the `sessionInfo.txt` file in top level.
 
 In order to make the program work on multiple systems, all paths are relative to:
 
@@ -16,11 +16,12 @@ In order to make the program work on multiple systems, all paths are relative to
 - plottingDir: directory to place stand alone plots
 
 We have provided a convience function, `setDirectory()`, within `Utils.R` to automatically set those directories to suit your local filesystem. 
-Please edit it such that it addresses the dataDir and outDir in the zipped data file, and a convenient plotting directory of your choice.  
+There is a miniaturized version of the test data in the correct out and dataDirs in the github, and full sized ones in the zipped data file from the google bucket. 
+Please edit `setDirectory()` to address the dataDirs and outDirs you want to use, as well as a convenient plotting directory of your choice.  
 
 Like inferCNV, scRNASeq-CNVCaller require three inputs:
 - a read count matrix 
-- a cell type annotation file
+- a gmt file of gene sets to analyze
 - a gene ordering file 
 
 
