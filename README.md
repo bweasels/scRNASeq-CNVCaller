@@ -11,8 +11,8 @@ All of these files are run on R 4.0.3. Required packages and their versions can 
 
 In order to make the program work on multiple systems, all paths are relative to:
 
-- dataDir: directory with raw, unprocessed files
-- outDir: directory with processed files, and outputs from scripts
+- dataDir: directory with raw, unprocessed files (see example on small dataset)
+- outDir: directory with processed files, and outputs from scripts (see example on small dataset)
 - plottingDir: directory to place stand alone plots
 
 We have provided a convience function, `setDirectory()`, within `Utils.R` to automatically set those directories to suit your local filesystem. 
